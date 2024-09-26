@@ -1,0 +1,26 @@
+# Variables: Possible values
+# 1. ENV: [dev, prod]
+#    - Use for setting system environment
+#    - default value: development
+
+services:
+  postgres:
+    container_name: next_gen_job_hunting_postgres_db
+    build:
+      context: ./postgres
+      dockerfile: dockerfile
+    volumes:
+      - next_gen_job_hunting_data:/data/postgres
+    # restart: unless-stopped
+    environment:
+      PGDATA: "/data/postgres"
+    env_file:
+      # use .env file as per Environment
+      # Possible Values: [dev, pro]
+      - ./postgres/.env
+      - ../.env
+    ports:
+      - "5432:5432"
+
+volumes:
+  next_gen_job_hunting_data:
