@@ -10,11 +10,10 @@ services:
       context: ./postgres
       dockerfile: dockerfile
     volumes:
-      - next_gen_job_hunting_data:/data/postgres
-      - ./postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
-    restart: unless-stopped
+      - next_gen_job_hunting_data:/data/next_gen_job_hunting_postgres
+    # restart: unless-stopped
     environment:
-      PGDATA: "/data/postgres"
+      PGDATA: "/data/next_gen_job_hunting_postgres"
     env_file:
       # use .env file as per Environment
       # Possible Values: [dev, pro]
