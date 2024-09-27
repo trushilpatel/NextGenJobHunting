@@ -1,9 +1,8 @@
-package db
+package database
 
 import (
-	"fmt"
 	"log"
-	"next_gen_job_hunting/config/env"
+	"next-gen-job-hunting/config/env"
 	"os"
 	"time"
 
@@ -15,17 +14,9 @@ import (
 
 var DB *gorm.DB
 
-func ConnectDB() {
-	
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/Los_Angeles",
-		env.GetDBHost(),
-		env.GetDBUser(),
-		env.GetDBPassword(),
-		env.GetDBName(),
-		env.GetDBPort(),
-	)
+func connectDB() *gorm.DB {
 
-
+	dsn := env.GetDBConnectionURL()
 	customLogger := RegisterLogger()
 
 	var err error
@@ -40,9 +31,14 @@ func ConnectDB() {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 	log.Println("Database connection successfully established")
+
+	return DB
 }
 
 func GetDB() *gorm.DB {
+	if DB == nil {
+		return connectDB()
+	}
 	return DB
 }
 
@@ -50,10 +46,10 @@ func RegisterLogger() logger.Interface {
 	return logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
-			SlowThreshold:             time.Second,   // Slow SQL threshold
-			LogLevel:                  logger.Info,   // Log level (Silent, Error, Warn, Info)
-			IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound errors
-			Colorful:                  true,          // Enable color in logs
+			SlowThreshold:             time.Second, // Slow SQL threshold
+			LogLevel:                  logger.Info, // Log level (Silent, Error, Warn, Info)
+			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound errors
+			Colorful:                  true,        // Enable color in logs
 		},
 	)
 }
@@ -69,5 +65,3 @@ func CloseDB() {
 		log.Fatalf("Error closing database connection: %v", err)
 	}
 }
-
-
