@@ -2,10 +2,13 @@ package main
 
 import (
 	"net/http"
-	db "next_gen_job_hunting/config/database"
-	env "next_gen_job_hunting/config/env"
+	db "next-gen-job-hunting/config/database"
+	"next-gen-job-hunting/config/env"
+
+	_ "github.com/lib/pq"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func getCreditScore(c *gin.Context) {
@@ -16,9 +19,9 @@ func getCreditScore(c *gin.Context) {
 func main() {
 	env.LoadEnvVars()
 
-	db.ConnectDB()
+	db.RunAutoDBMigrations()
 
-   router := gin.Default()
-   router.GET("/", getCreditScore)
-   router.Run("localhost:8080")
+	router := gin.Default()
+	router.GET("/", getCreditScore)
+	router.Run("localhost:8080")
 }

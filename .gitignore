@@ -58,4 +58,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 *pycache*
 *.venv*
 
-*next_gen_job_hunting*
+*next-gen-job-hunting*

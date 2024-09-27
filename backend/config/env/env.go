@@ -1,6 +1,7 @@
 package env
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -8,18 +9,21 @@ import (
 )
 
 var envVarsMap = map[string]string{
-	"DB_USERNAME": "",
-	"DB_PASSWORD": "",
-	"DB_HOST":     "",
-	"DB_NAME":     "",
-	"DB_PORT": "",
+	"DB_USERNAME":       "",
+	"DB_PASSWORD":       "",
+	"DB_HOST":           "",
+	"DB_NAME":           "",
+	"DB_PORT":           "",
+	"LOG_ENV_VARIABLES": "false",
 }
 
 var envPath = "../.env"
 
 func LoadEnvVars() {
 	getAndLoadEnvVariables()
-	logEnvVars()
+	if LogEnvVariables() {
+		logEnvVars()
+	}
 }
 
 func logEnvVars() {
@@ -30,11 +34,11 @@ func logEnvVars() {
 			missingVars = append(missingVars, name)
 		}
 	}
-	
+
 	log.Println("*********** ENV VARIABLES ***********")
 	if len(missingVars) > 0 {
 		log.Printf("=> Total missing environment variables : ", len(missingVars))
-		log.Printf("%v",missingVars)
+		log.Printf("%v", missingVars)
 	}
 
 	log.Println("Loaded environment variables:")
@@ -47,7 +51,6 @@ func logEnvVars() {
 
 func getAndLoadEnvVariables() {
 	if _, err := os.Stat(envPath); err == nil {
-		log.Printf("Env Path: " + envPath)
 		if err := godotenv.Load(envPath); err != nil {
 			log.Fatalf("Error loading .env file")
 		}
@@ -78,4 +81,18 @@ func GetDBName() string {
 
 func GetDBPort() string {
 	return envVarsMap["DB_PORT"]
+}
+
+func LogEnvVariables() bool {
+	return envVarsMap["LOG_ENV_VARIABLES"] == "true"
+}
+
+func GetDBConnectionURL() string {
+	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/Los_Angeles",
+		GetDBHost(),
+		GetDBUser(),
+		GetDBPassword(),
+		GetDBName(),
+		GetDBPort(),
+	)
 }
