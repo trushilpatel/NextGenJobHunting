@@ -3,13 +3,13 @@ package main
 import (
 	"log"
 
-	"next-gen-job-hunting/api/jobs"
+	"next-gen-job-hunting/api/joburl"
 	"next-gen-job-hunting/api/user"
 
 	"next-gen-job-hunting/config/database"
 )
 
-var models = []interface{}{&user.User{}, &jobs.JobUrl{}}
+var models = []interface{}{&user.User{}, &joburl.JobUrl{}}
 
 func RunAutoDBMigrations() {
 	db := database.NewDB()

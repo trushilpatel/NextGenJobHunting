@@ -1,6 +1,7 @@
-package jobs
+package joburl
 
 import (
+	"next-gen-job-hunting/api/user"
 	"next-gen-job-hunting/common/db"
 
 	"gorm.io/gorm"
@@ -17,9 +18,11 @@ const (
 
 type JobUrl struct {
 	db.IdCreatedUpdated
-	URL      string `gorm:"size:2048;not null" json:"url"`                  // URL field with a max length of 2048 characters
-	Priority string `gorm:"size:10;not null;default:'low'" json:"priority"` // Default priority set to 'l'
-	Status   string `gorm:"size:10;not null;default:'new'" json:"status"`   // Status field, e.g., "pending", "completed"
+	URL      string    `gorm:"size:2048;not null" json:"url"`                  // URL field with a max length of 2048 characters
+	Priority string    `gorm:"size:10;not null;default:'low'" json:"priority"` // Default priority set to 'l'
+	Status   string    `gorm:"size:10;not null;default:'new'" json:"status"`   // Status field, e.g., "pending", "completed"
+	UserID   uint      `gorm:"not null" json:"userId"`
+	User     user.User `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"` // Define foreign key relationship
 }
 
 // BeforeSave hook to validate and set default values
