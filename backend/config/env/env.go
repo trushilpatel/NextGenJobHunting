@@ -6,9 +6,13 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"gorm.io/gorm/logger"
 )
 
 var envVarsMap = map[string]string{
+	"PORT":              "",
+	"GIN_MODE":          "",
+	"GORM_LOG_LEVEL":    "warn",
 	"DB_USERNAME":       "",
 	"DB_PASSWORD":       "",
 	"DB_HOST":           "",
@@ -60,6 +64,30 @@ func getAndLoadEnvVariables() {
 
 	for key := range envVarsMap {
 		envVarsMap[key] = os.Getenv(key)
+	}
+}
+
+func GetPort() string {
+	return envVarsMap["PORT"]
+}
+
+func GetGinMode() string {
+
+	return envVarsMap["GIN_MODE"]
+}
+
+func GetGormLogLevel() logger.LogLevel {
+	switch envVarsMap["GIN_LOG_LEVEL"] {
+	case "info":
+		return logger.Info
+	case "warn":
+		return logger.Warn
+	case "error":
+		return logger.Error
+	case "silent":
+		return logger.Silent
+	default:
+		return logger.Warn
 	}
 }
 
