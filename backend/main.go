@@ -1,27 +1,29 @@
 package main
 
 import (
-	"net/http"
-	db "next-gen-job-hunting/config/database"
+	"next-gen-job-hunting/api/user"
+	"next-gen-job-hunting/common/utils"
 	"next-gen-job-hunting/config/env"
-
-	_ "github.com/lib/pq"
+	"next-gen-job-hunting/di"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func getCreditScore(c *gin.Context) {
-	value := "No route found"
-	c.IndentedJSON(http.StatusOK, value)
+func v1API(router *gin.Engine) {
+	// Version 1 API
+	v1 := router.Group("/api/v1")
+	{
+		user.RegisterUserRoutes(v1, di.InitializeUserController())
+	}
 }
 
 func main() {
-	env.LoadEnvVars()
 
-	db.RunAutoDBMigrations()
+	env.LoadEnvVars()
+	RunAutoDBMigrations()
 
 	router := gin.Default()
-	router.GET("/", getCreditScore)
+	router.Use(utils.Logger())
+	v1API(router)
 	router.Run("localhost:8080")
 }

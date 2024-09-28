@@ -4,6 +4,7 @@ import (
 	"log"
 	"next-gen-job-hunting/config/env"
 	"os"
+	"sync"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -12,15 +13,16 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var DB *gorm.DB
+var (
+	DB   *gorm.DB
+	once sync.Once
+)
 
-func connectDB() *gorm.DB {
-
+func connectDB() (*gorm.DB, error) {
 	dsn := env.GetDBConnectionURL()
 	customLogger := RegisterLogger()
 
-	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: customLogger,
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
@@ -28,17 +30,21 @@ func connectDB() *gorm.DB {
 	})
 
 	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
+		return nil, err
 	}
 	log.Println("Database connection successfully established")
 
-	return DB
+	return db, nil
 }
 
-func GetDB() *gorm.DB {
-	if DB == nil {
-		return connectDB()
-	}
+func NewDB() *gorm.DB {
+	once.Do(func() {
+		var err error
+		DB, err = connectDB()
+		if err != nil {
+			log.Fatalf("Error connecting to database: %v", err)
+		}
+	})
 	return DB
 }
 
@@ -56,12 +62,16 @@ func RegisterLogger() logger.Interface {
 
 // CloseDB closes the database connection (usually for cleanup/shutdown)
 func CloseDB() {
+	if DB == nil {
+		return
+	}
 	sqlDB, err := DB.DB()
 	if err != nil {
-		log.Fatalf("Error getting database connection: %v", err)
+		log.Printf("Error getting database connection: %v", err)
+		return
 	}
 	err = sqlDB.Close()
 	if err != nil {
-		log.Fatalf("Error closing database connection: %v", err)
+		log.Printf("Error closing database connection: %v", err)
 	}
 }
