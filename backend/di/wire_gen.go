@@ -7,6 +7,7 @@
 package di
 
 import (
+	"next-gen-job-hunting/api/joburl"
 	"next-gen-job-hunting/api/user"
 	"next-gen-job-hunting/config/database"
 )
@@ -19,4 +20,14 @@ func InitializeUserController() *user.UserController {
 	userService := user.NewUserService(userRepository)
 	userController := user.NewUserController(userService)
 	return userController
+}
+
+func InitializeJobUrlController() *joburl.JobUrlController {
+	db := database.NewDB()
+	jobUrlRepository := joburl.NewJobUrlRepository(db)
+	jobUrlService := joburl.NewJobUrlService(jobUrlRepository)
+	userRepository := user.NewUserRepository(db)
+	userService := user.NewUserService(userRepository)
+	jobUrlController := joburl.NewJobUrlController(jobUrlService, userService)
+	return jobUrlController
 }

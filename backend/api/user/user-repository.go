@@ -1,8 +1,6 @@
 package user
 
 import (
-	"log"
-
 	"gorm.io/gorm"
 )
 
@@ -15,10 +13,6 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 }
 
 func (r *UserRepository) CreateUser(user *User) error {
-	if r.DB == nil {
-		log.Println("DB not initialized")
-	}
-
 	if err := r.DB.Create(user).Error; err != nil {
 		return err
 	}
