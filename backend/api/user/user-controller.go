@@ -9,10 +9,10 @@ import (
 )
 
 type UserController struct {
-	Service *UserService
+	Service *UserValidationService
 }
 
-func NewUserController(service *UserService) *UserController {
+func NewUserController(service *UserValidationService) *UserController {
 	return &UserController{Service: service}
 }
 
@@ -59,7 +59,7 @@ func (c *UserController) GetUser(ctx *gin.Context) {
 		return
 	}
 
-	user, err := c.Service.GetUser(uint(id))
+	user, err := c.Service.GetUserByID(uint(id))
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return

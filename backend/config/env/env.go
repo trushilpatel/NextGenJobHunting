@@ -10,15 +10,20 @@ import (
 )
 
 var envVarsMap = map[string]string{
-	"PORT":              "",
-	"GIN_MODE":          "",
-	"GORM_LOG_LEVEL":    "warn",
-	"DB_USERNAME":       "",
-	"DB_PASSWORD":       "",
-	"DB_HOST":           "",
-	"DB_NAME":           "",
-	"DB_PORT":           "",
+	"PORT": "",
+
+	"GIN_MODE":       "debug",
+	"GORM_LOG_LEVEL": "warn",
+
+	"DB_USERNAME": "",
+	"DB_PASSWORD": "",
+	"DB_HOST":     "",
+	"DB_NAME":     "",
+	"DB_PORT":     "",
+
 	"LOG_ENV_VARIABLES": "false",
+
+	"JWT_SECRET": "",
 }
 
 var envPath = "../.env"
@@ -123,4 +128,8 @@ func GetDBConnectionURL() string {
 		GetDBName(),
 		GetDBPort(),
 	)
+}
+
+func GetJWTSecret() string {
+	return envVarsMap["JWT_SECRET"]
 }

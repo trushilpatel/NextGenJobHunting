@@ -31,9 +31,21 @@ func (r *UserRepository) GetUserByID(id uint) (*User, error) {
 	var user User
 	if err := r.DB.First(&user, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, nil // Record not found is not considered an error
+			return nil, err // Record not found is not considered an error
 		}
 		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *UserRepository) GetUserByEmail(email string) (*User, error) {
+	var user User
+	result := r.DB.Model(User{Email: email}).First(&user)
+	if result == nil || result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, result.Error // Record not found is not considered an error
+		}
+		return nil, result.Error
 	}
 	return &user, nil
 }

@@ -25,7 +25,7 @@ func (controller *JobUrlController) CreateJobUrl(c *gin.Context) {
 		return
 	}
 
-	if _, err := controller.UserService.GetUser(job.UserID); err != nil {
+	if _, err := controller.UserService.GetUserByID(job.UserID); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
@@ -82,7 +82,7 @@ func (controller *JobUrlController) UpdateJobUrl(c *gin.Context) {
 		return
 	}
 
-	if _, err := controller.UserService.GetUser(uint(job.UserID)); err != nil {
+	if _, err := controller.UserService.GetUserByID(uint(job.UserID)); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}

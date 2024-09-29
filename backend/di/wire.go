@@ -4,7 +4,9 @@
 package di
 
 import (
+	"next-gen-job-hunting/api/auth"
 	"next-gen-job-hunting/api/joburl"
+	"next-gen-job-hunting/api/token"
 	"next-gen-job-hunting/api/user"
 
 	"next-gen-job-hunting/config/database"
@@ -17,6 +19,7 @@ func InitializeUserController() *user.UserController {
 		database.NewDB,
 		user.NewUserRepository,
 		user.NewUserService,
+		user.NewUserValidationService,
 		user.NewUserController)
 
 	return &user.UserController{}
@@ -34,4 +37,21 @@ func InitializeJobUrlController() *joburl.JobUrlController {
 		joburl.NewJobUrlController,
 	)
 	return &joburl.JobUrlController{}
+}
+
+func InitializeAuthController() *auth.AuthController {
+	wire.Build(
+		database.NewDB,
+
+		user.NewUserRepository,
+		user.NewUserService,
+
+		token.NewTokenRepository,
+		token.NewTokenService,
+
+		auth.NewAuthService,
+		auth.NewAuthValidationService,
+		auth.NewAuthController,
+	)
+	return &auth.AuthController{}
 }

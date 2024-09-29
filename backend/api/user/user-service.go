@@ -16,8 +16,12 @@ func (s *UserService) GetAllUser() ([]*User, error) {
 	return s.Repo.GetAllUser()
 }
 
-func (s *UserService) GetUser(id uint) (*User, error) {
+func (s *UserService) GetUserByID(id uint) (*User, error) {
 	return s.Repo.GetUserByID(id)
+}
+
+func (s *UserService) GetUserByEmail(email string) (*User, error) {
+	return s.Repo.GetUserByEmail(email)
 }
 
 func (s *UserService) UpdateUser(user *User) error {
