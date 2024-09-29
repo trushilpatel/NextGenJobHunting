@@ -7,18 +7,37 @@
 package di
 
 import (
+	"next-gen-job-hunting/api/auth"
 	"next-gen-job-hunting/api/joburl"
+	"next-gen-job-hunting/api/token"
 	"next-gen-job-hunting/api/user"
 	"next-gen-job-hunting/config/database"
 )
 
 // Injectors from wire.go:
 
+func InitialiseUserService() *user.UserService {
+	db := database.NewDB()
+	userRepository := user.NewUserRepository(db)
+	userService := user.NewUserService(userRepository)
+	return userService
+}
+
+func InitialiseTokenService() *token.TokenService {
+	db := database.NewDB()
+	userRepository := user.NewUserRepository(db)
+	tokenRepository := token.NewTokenRepository(db, userRepository)
+	userService := user.NewUserService(userRepository)
+	tokenService := token.NewTokenService(tokenRepository, userService)
+	return tokenService
+}
+
 func InitializeUserController() *user.UserController {
 	db := database.NewDB()
 	userRepository := user.NewUserRepository(db)
 	userService := user.NewUserService(userRepository)
-	userController := user.NewUserController(userService)
+	userValidationService := user.NewUserValidationService(userService)
+	userController := user.NewUserController(userValidationService)
 	return userController
 }
 
@@ -30,4 +49,16 @@ func InitializeJobUrlController() *joburl.JobUrlController {
 	userService := user.NewUserService(userRepository)
 	jobUrlController := joburl.NewJobUrlController(jobUrlService, userService)
 	return jobUrlController
+}
+
+func InitializeAuthController() *auth.AuthController {
+	db := database.NewDB()
+	userRepository := user.NewUserRepository(db)
+	tokenRepository := token.NewTokenRepository(db, userRepository)
+	userService := user.NewUserService(userRepository)
+	tokenService := token.NewTokenService(tokenRepository, userService)
+	authService := auth.NewAuthService(userRepository, tokenService)
+	authValidationService := auth.NewAuthValidationService(authService)
+	authController := auth.NewAuthController(authValidationService)
+	return authController
 }

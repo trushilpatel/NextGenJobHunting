@@ -11,7 +11,10 @@ require (
 	gorm.io/gorm v1.25.10
 )
 
-require github.com/kr/pretty v0.3.1 // indirect
+require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/kr/pretty v0.3.1 // indirect
+)
 
 require (
 	github.com/bytedance/sonic v1.12.3 // indirect

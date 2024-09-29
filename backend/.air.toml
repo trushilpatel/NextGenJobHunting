@@ -1,9 +1,0 @@
-# .air.toml
-[build]
-bin = ""
-cmd = "make backend"
-include = ["*.go"]
-exclude = ["vendor/**", ".git/**"]
-
-[log]
-time = true

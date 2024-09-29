@@ -25,12 +25,12 @@ func (controller *JobUrlController) CreateJobUrl(c *gin.Context) {
 		return
 	}
 
-	if _, err := controller.UserService.GetUser(job.UserID); err != nil {
+	if _, err := controller.UserService.GetUserByID(job.UserID, c); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
-	if err := controller.Service.CreateJobUrl(&job); err != nil {
+	if err := controller.Service.CreateJobUrl(&job, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -45,7 +45,7 @@ func (controller *JobUrlController) GetJobUrl(c *gin.Context) {
 		return
 	}
 
-	jobUrl, err := controller.Service.GetJobUrlById(uint(id))
+	jobUrl, err := controller.Service.GetJobUrlById(uint(id), c)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Job URL not found"})
 		return
@@ -56,7 +56,7 @@ func (controller *JobUrlController) GetJobUrl(c *gin.Context) {
 
 func (controller *JobUrlController) GetAllJobUrls(c *gin.Context) {
 	var jobs []*JobUrl
-	jobs, error := controller.Service.GetAllJobUrl()
+	jobs, error := controller.Service.GetAllJobUrl(c)
 	if error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": error.Error()})
 		return
@@ -72,7 +72,7 @@ func (controller *JobUrlController) UpdateJobUrl(c *gin.Context) {
 	}
 
 	var job JobUrl
-	if _, err := controller.Service.GetJobUrlById(uint(id)); err != nil {
+	if _, err := controller.Service.GetJobUrlById(uint(id), c); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Job URL not found"})
 		return
 	}
@@ -82,13 +82,13 @@ func (controller *JobUrlController) UpdateJobUrl(c *gin.Context) {
 		return
 	}
 
-	if _, err := controller.UserService.GetUser(uint(job.UserID)); err != nil {
+	if _, err := controller.UserService.GetUserByID(uint(job.UserID), c); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
 	job.ID.ID = uint(id)
-	if err := controller.Service.UpdateJobUrl(&job); err != nil {
+	if err := controller.Service.UpdateJobUrl(&job, c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -103,12 +103,12 @@ func (controller *JobUrlController) DeleteJobUrl(c *gin.Context) {
 		return
 	}
 
-	if _, err := controller.Service.GetJobUrlById(uint(id)); err != nil {
+	if _, err := controller.Service.GetJobUrlById(uint(id), c); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Job URL not found"})
 		return
 	}
 
-	if err := controller.Service.DeleteJobUrl(uint(id)); err != nil {
+	if err := controller.Service.DeleteJobUrl(uint(id), c); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

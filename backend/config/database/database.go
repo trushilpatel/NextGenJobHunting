@@ -52,10 +52,10 @@ func RegisterLogger() logger.Interface {
 	return logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
-			SlowThreshold:             time.Second, // Slow SQL threshold
-			LogLevel:                  logger.Info, // Log level (Silent, Error, Warn, Info)
-			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound errors
-			Colorful:                  true,        // Enable color in logs
+			SlowThreshold:             time.Second,           // Slow SQL threshold
+			LogLevel:                  env.GetGormLogLevel(), // Log level (Silent, Error, Warn, Info)
+			IgnoreRecordNotFoundError: true,                  // Ignore ErrRecordNotFound errors
+			Colorful:                  true,                  // Enable color in logs
 		},
 	)
 }

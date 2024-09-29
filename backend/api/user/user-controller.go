@@ -9,10 +9,10 @@ import (
 )
 
 type UserController struct {
-	Service *UserService
+	Service *UserValidationService
 }
 
-func NewUserController(service *UserService) *UserController {
+func NewUserController(service *UserValidationService) *UserController {
 	return &UserController{Service: service}
 }
 
@@ -35,7 +35,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 		log.Println(user)
 	}
 
-	if err := c.Service.CreateUser(user); err != nil {
+	if err := c.Service.CreateUser(user, ctx); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create user"})
 		return
 	}
@@ -44,7 +44,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 }
 
 func (c *UserController) GetAllUser(ctx *gin.Context) {
-	users, err := c.Service.GetAllUser()
+	users, err := c.Service.GetAllUser(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error occured while retrieving users"})
 		return
@@ -59,7 +59,7 @@ func (c *UserController) GetUser(ctx *gin.Context) {
 		return
 	}
 
-	user, err := c.Service.GetUser(uint(id))
+	user, err := c.Service.GetUserByID(uint(id), ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
@@ -82,7 +82,7 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 	}
 
 	user.ID.ID = uint(id)
-	if err := c.Service.UpdateUser(&user); err != nil {
+	if err := c.Service.UpdateUser(&user, ctx); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -97,7 +97,7 @@ func (c *UserController) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.Service.DeleteUser(uint(id)); err != nil {
+	if err := c.Service.DeleteUser(uint(id), ctx); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

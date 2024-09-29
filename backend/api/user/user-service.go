@@ -1,5 +1,7 @@
 package user
 
+import "github.com/gin-gonic/gin"
+
 type UserService struct {
 	Repo *UserRepository
 }
@@ -8,22 +10,26 @@ func NewUserService(repo *UserRepository) *UserService {
 	return &UserService{Repo: repo}
 }
 
-func (s *UserService) CreateUser(user *User) error {
-	return s.Repo.CreateUser(user)
+func (s *UserService) CreateUser(user *User, c *gin.Context) error {
+	return s.Repo.CreateUser(user, c)
 }
 
-func (s *UserService) GetAllUser() ([]*User, error) {
-	return s.Repo.GetAllUser()
+func (s *UserService) GetAllUser(c *gin.Context) ([]*User, error) {
+	return s.Repo.GetAllUser(c)
 }
 
-func (s *UserService) GetUser(id uint) (*User, error) {
-	return s.Repo.GetUserByID(id)
+func (s *UserService) GetUserByID(id uint, c *gin.Context) (*User, error) {
+	return s.Repo.GetUserByID(id, c)
 }
 
-func (s *UserService) UpdateUser(user *User) error {
-	return s.Repo.UpdateUser(user)
+func (s *UserService) GetUserByEmail(email string, c *gin.Context) (*User, error) {
+	return s.Repo.GetUserByEmail(email, c)
 }
 
-func (s *UserService) DeleteUser(id uint) error {
-	return s.Repo.DeleteUser(id)
+func (s *UserService) UpdateUser(user *User, c *gin.Context) error {
+	return s.Repo.UpdateUser(user, c)
+}
+
+func (s *UserService) DeleteUser(id uint, c *gin.Context) error {
+	return s.Repo.DeleteUser(id, c)
 }

@@ -6,15 +6,24 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"gorm.io/gorm/logger"
 )
 
 var envVarsMap = map[string]string{
-	"DB_USERNAME":       "",
-	"DB_PASSWORD":       "",
-	"DB_HOST":           "",
-	"DB_NAME":           "",
-	"DB_PORT":           "",
+	"PORT": "",
+
+	"GIN_MODE":       "debug",
+	"GORM_LOG_LEVEL": "warn",
+
+	"DB_USERNAME": "",
+	"DB_PASSWORD": "",
+	"DB_HOST":     "",
+	"DB_NAME":     "",
+	"DB_PORT":     "",
+
 	"LOG_ENV_VARIABLES": "false",
+
+	"JWT_SECRET": "",
 }
 
 var envPath = "../.env"
@@ -63,6 +72,30 @@ func getAndLoadEnvVariables() {
 	}
 }
 
+func GetPort() string {
+	return envVarsMap["PORT"]
+}
+
+func GetGinMode() string {
+
+	return envVarsMap["GIN_MODE"]
+}
+
+func GetGormLogLevel() logger.LogLevel {
+	switch envVarsMap["GIN_LOG_LEVEL"] {
+	case "info":
+		return logger.Info
+	case "warn":
+		return logger.Warn
+	case "error":
+		return logger.Error
+	case "silent":
+		return logger.Silent
+	default:
+		return logger.Warn
+	}
+}
+
 func GetDBUser() string {
 	return envVarsMap["DB_USERNAME"]
 }
@@ -95,4 +128,8 @@ func GetDBConnectionURL() string {
 		GetDBName(),
 		GetDBPort(),
 	)
+}
+
+func GetJWTSecret() string {
+	return envVarsMap["JWT_SECRET"]
 }
