@@ -5,6 +5,8 @@ import (
 	"next-gen-job-hunting/api/token"
 	"next-gen-job-hunting/api/user"
 	"next-gen-job-hunting/common/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AuthValidationService struct {
@@ -17,27 +19,13 @@ func NewAuthValidator(service *AuthService) *AuthValidationService {
 	}
 }
 
-func (s *AuthValidationService) SignUp(user *user.User) (*token.Token, error) {
-	_, err := s.ValidateSignUp(user)
+func (s *AuthValidationService) SignUp(user *user.User, c *gin.Context) (*token.Token, error) {
+	_, err := s.ValidateSignUp(user, c)
 	if err != nil {
 		return nil, err
 	}
 
-	token, err := s.Service.SignUp(user)
-	if err != nil {
-		return nil, err
-	}
-
-	return token, nil
-}
-
-func (s *AuthValidationService) SignIn(user *user.User) (*token.Token, error) {
-	_, err := s.ValidateSignIn(user)
-	if err != nil {
-		return nil, err
-	}
-
-	token, err := s.Service.SignIn(user)
+	token, err := s.Service.SignUp(user, c)
 	if err != nil {
 		return nil, err
 	}
@@ -45,21 +33,35 @@ func (s *AuthValidationService) SignIn(user *user.User) (*token.Token, error) {
 	return token, nil
 }
 
-func (s *AuthValidationService) SignOut(token string) error {
+func (s *AuthValidationService) SignIn(user *user.User, c *gin.Context) (*token.Token, error) {
+	_, err := s.ValidateSignIn(user, c)
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := s.Service.SignIn(user, c)
+	if err != nil {
+		return nil, err
+	}
+
+	return token, nil
+}
+
+func (s *AuthValidationService) SignOut(token string, c *gin.Context) error {
 	_, err := utils.ValidateToken(token)
 	if err != nil {
 		return err
 	}
 
-	err = s.Service.SignOut(token)
+	err = s.Service.SignOut(token, c)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (v *AuthValidationService) AuthenticateUser(user *user.User) (bool, error) {
-	authenticatedUser, err := v.Service.GetUserByEmail(user.Email)
+func (v *AuthValidationService) AuthenticateUser(user *user.User, c *gin.Context) (bool, error) {
+	authenticatedUser, err := v.Service.GetUserByEmail(user.Email, c)
 	if err != nil || authenticatedUser == nil {
 		return false, err
 	}
@@ -74,8 +76,8 @@ func (v *AuthValidationService) AuthenticateUser(user *user.User) (bool, error) 
 	return true, nil
 }
 
-func (v *AuthValidationService) ValidateSignUp(user *user.User) (*user.User, error) {
-	existingUser, err := v.Service.GetUserByEmail(user.Email)
+func (v *AuthValidationService) ValidateSignUp(user *user.User, c *gin.Context) (*user.User, error) {
+	existingUser, err := v.Service.GetUserByEmail(user.Email, c)
 	if err != nil {
 		return nil, err
 	}
@@ -86,8 +88,8 @@ func (v *AuthValidationService) ValidateSignUp(user *user.User) (*user.User, err
 	return user, nil
 }
 
-func (v *AuthValidationService) ValidateSignIn(user *user.User) (*user.User, error) {
-	isAuthenticatedUser, err := v.AuthenticateUser(user)
+func (v *AuthValidationService) ValidateSignIn(user *user.User, c *gin.Context) (*user.User, error) {
+	isAuthenticatedUser, err := v.AuthenticateUser(user, c)
 	if err != nil || !isAuthenticatedUser {
 		return nil, err
 	}

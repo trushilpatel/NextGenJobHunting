@@ -3,6 +3,8 @@ package user
 import (
 	"errors"
 	"regexp"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -19,37 +21,37 @@ func NewUserValidationService(service *UserService) *UserValidationService {
 	return &UserValidationService{Service: service}
 }
 
-func (s *UserValidationService) CreateUser(user *User) error {
+func (s *UserValidationService) CreateUser(user *User, c *gin.Context) error {
 	if err := ValidateUser(user); err != nil {
 		return err
 	}
-	return s.Service.CreateUser(user)
+	return s.Service.CreateUser(user, c)
 }
 
-func (s *UserValidationService) GetAllUser() ([]*User, error) {
-	return s.Service.GetAllUser()
+func (s *UserValidationService) GetAllUser(c *gin.Context) ([]*User, error) {
+	return s.Service.GetAllUser(c)
 }
 
-func (s *UserValidationService) GetUserByID(id uint) (*User, error) {
-	return s.Service.GetUserByID(id)
+func (s *UserValidationService) GetUserByID(id uint, c *gin.Context) (*User, error) {
+	return s.Service.GetUserByID(id, c)
 }
 
-func (s *UserValidationService) UpdateUser(user *User) error {
+func (s *UserValidationService) UpdateUser(user *User, c *gin.Context) error {
 	if err := ValidateUser(user); err != nil {
 		return err
 	}
-	return s.Service.UpdateUser(user)
+	return s.Service.UpdateUser(user, c)
 }
 
-func (s *UserValidationService) DeleteUser(id uint) error {
-	user, err := s.Service.GetUserByID(id)
+func (s *UserValidationService) DeleteUser(id uint, c *gin.Context) error {
+	user, err := s.Service.GetUserByID(id, c)
 	if err != nil {
 		return err
 	}
 	if user == nil {
 		return errors.New("user not found")
 	}
-	return s.Service.DeleteUser(id)
+	return s.Service.DeleteUser(id, c)
 }
 
 func ValidateUser(user *User) error {

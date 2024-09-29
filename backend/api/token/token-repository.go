@@ -28,8 +28,8 @@ func (r *TokenRepository) GetToken(c *gin.Context) {
 	c.JSON(http.StatusOK, token)
 }
 
-func (r *TokenRepository) CreateTokenForUser(user *user.User) (*Token, error) {
-	latestUserDetails, err := r.UserRepository.GetUserByEmail(user.Email)
+func (r *TokenRepository) CreateTokenForUser(user *user.User, c *gin.Context) (*Token, error) {
+	latestUserDetails, err := r.UserRepository.GetUserByEmail(user.Email, c)
 	if latestUserDetails == nil || err != nil {
 		return nil, err
 	}

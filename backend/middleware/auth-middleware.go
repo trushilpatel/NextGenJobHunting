@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"next-gen-job-hunting/api/token"
+	"next-gen-job-hunting/api/user"
 	"next-gen-job-hunting/common/utils"
 	"time"
 
@@ -16,7 +17,8 @@ func LoggingMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
-func AuthMiddleware(tokenService *token.TokenService) gin.HandlerFunc {
+
+func AuthMiddleware(tokenService *token.TokenService, userService *user.UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authToken := c.GetHeader("auth_token")
 		fmt.Println(c.GetHeader("auth_token"))
@@ -32,7 +34,7 @@ func AuthMiddleware(tokenService *token.TokenService) gin.HandlerFunc {
 			return
 		}
 
-		token, err := tokenService.FindByTokenHash(utils.GenerateTokenHash(authToken))
+		tokenData, err := tokenService.FindByTokenHash(utils.GenerateTokenHash(authToken))
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid auth_token"})
 			c.Abort()
@@ -40,7 +42,10 @@ func AuthMiddleware(tokenService *token.TokenService) gin.HandlerFunc {
 		}
 
 		// Store user in context
-		c.Set("user", token.User)
+		user, err := userService.GetUserByID(tokenData.UserId, c)
+		c.Set("user", user)
+		fmt.Println("**************USER ID**************")
+		fmt.Println(tokenData.User)
 		c.Next()
 	}
 }

@@ -24,7 +24,7 @@ func (ctrl *AuthController) SignUp(c *gin.Context) {
 		return
 	}
 
-	token, err := ctrl.Service.SignUp(&user)
+	token, err := ctrl.Service.SignUp(&user, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token", "message": err})
 		return
@@ -40,7 +40,7 @@ func (ctrl *AuthController) SignIn(c *gin.Context) {
 		return
 	}
 
-	token, err := ctrl.Service.SignIn(&user)
+	token, err := ctrl.Service.SignIn(&user, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return

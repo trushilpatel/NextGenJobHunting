@@ -17,7 +17,7 @@ func v1API(router *gin.Engine) {
 	authGroup := router.Group("/api/v1")
 	auth.RegisterAuthRoutes(authGroup, di.InitializeAuthController())
 
-	authMiddleware := middleware.AuthMiddleware(di.InitialiseTokenService())
+	authMiddleware := middleware.AuthMiddleware(di.InitialiseTokenService(), di.InitialiseUserService())
 	v1 := router.Group("/api/v1", authMiddleware)
 	{
 		user.RegisterUserRoutes(v1, di.InitializeUserController())

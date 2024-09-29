@@ -5,6 +5,8 @@ import (
 	"next-gen-job-hunting/common/utils"
 
 	"next-gen-job-hunting/api/token"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AuthService struct {
@@ -19,12 +21,12 @@ func NewAuthService(UserRepository *user.UserRepository, tokenService *token.Tok
 	}
 }
 
-func (s *AuthService) SignUp(user *user.User) (*token.Token, error) {
-	if err := s.UserRepository.CreateUser(user); err != nil {
+func (s *AuthService) SignUp(user *user.User, c *gin.Context) (*token.Token, error) {
+	if err := s.UserRepository.CreateUser(user, c); err != nil {
 		return nil, err
 	}
 
-	token, err := s.TokenService.CreateTokenForUser(user)
+	token, err := s.TokenService.CreateTokenForUser(user, c)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +34,8 @@ func (s *AuthService) SignUp(user *user.User) (*token.Token, error) {
 	return token, nil
 }
 
-func (s *AuthService) SignIn(user *user.User) (*token.Token, error) {
-	token, err := s.TokenService.CreateTokenForUser(user)
+func (s *AuthService) SignIn(user *user.User, c *gin.Context) (*token.Token, error) {
+	token, err := s.TokenService.CreateTokenForUser(user, c)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +43,7 @@ func (s *AuthService) SignIn(user *user.User) (*token.Token, error) {
 	return token, nil
 }
 
-func (s *AuthService) SignOut(token string) error {
+func (s *AuthService) SignOut(token string, c *gin.Context) error {
 	_, err := s.TokenService.DeleteTokenByTokenHash(utils.GenerateTokenHash(token))
 	if err != nil {
 		return err
@@ -50,12 +52,12 @@ func (s *AuthService) SignOut(token string) error {
 	return nil
 }
 
-func (s *AuthService) GetUserByEmail(email string) (*user.User, error) {
-	return s.UserRepository.GetUserByEmail(email)
+func (s *AuthService) GetUserByEmail(email string, c *gin.Context) (*user.User, error) {
+	return s.UserRepository.GetUserByEmail(email, c)
 }
 
-func (s *AuthService) AuthenticateUser(user *user.User) (bool, error) {
-	authenticatedUser, err := s.GetUserByEmail(user.Email)
+func (s *AuthService) AuthenticateUser(user *user.User, c *gin.Context) (bool, error) {
+	authenticatedUser, err := s.GetUserByEmail(user.Email, c)
 	if err != nil || authenticatedUser == nil {
 		return false, err
 	}

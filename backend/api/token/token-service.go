@@ -20,8 +20,8 @@ func (s *TokenService) GetToken(c *gin.Context) {
 	s.TokenRepository.GetToken(c)
 }
 
-func (s *TokenService) CreateTokenForUser(user *user.User) (*Token, error) {
-	latestUserDetails, err := s.UserService.GetUserByEmail(user.Email)
+func (s *TokenService) CreateTokenForUser(user *user.User, c *gin.Context) (*Token, error) {
+	latestUserDetails, err := s.UserService.GetUserByEmail(user.Email, c)
 	if latestUserDetails == nil || err != nil {
 		return nil, err
 	}
