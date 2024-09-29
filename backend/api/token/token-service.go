@@ -3,7 +3,6 @@ package token
 import (
 	"next-gen-job-hunting/api/user"
 	"next-gen-job-hunting/common/utils"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -64,19 +63,4 @@ func (s *TokenService) DeleteTokenByTokenHash(tokenHash string) (bool, error) {
 
 func (s *TokenService) UpdateToken(token *Token) error {
 	return s.TokenRepository.UpdateToken(token)
-}
-
-func (s *TokenService) isValidToken(tokenString string) bool {
-	claims, err := utils.ValidateToken(tokenString)
-	if err != nil {
-		return false
-	}
-
-	tokenHash := utils.GenerateTokenHash(tokenString)
-	_, err = s.FindByTokenHash(tokenHash)
-	if err != nil {
-		return false
-	}
-
-	return claims.ExpiresAt > time.Now().Unix()
 }

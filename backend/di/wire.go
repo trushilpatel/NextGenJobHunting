@@ -14,13 +14,30 @@ import (
 	"github.com/google/wire"
 )
 
+func InitialiseTokenService() *token.TokenService {
+	wire.Build(
+		database.NewDB,
+
+		user.NewUserRepository,
+		user.NewUserService,
+
+		token.NewTokenRepository,
+		token.NewTokenService,
+	)
+
+	return &token.TokenService{}
+}
+
 func InitializeUserController() *user.UserController {
 	wire.Build(
 		database.NewDB,
+
 		user.NewUserRepository,
 		user.NewUserService,
+
 		user.NewUserValidationService,
-		user.NewUserController)
+		user.NewUserController,
+	)
 
 	return &user.UserController{}
 }

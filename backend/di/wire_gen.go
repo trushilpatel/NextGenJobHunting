@@ -16,6 +16,15 @@ import (
 
 // Injectors from wire.go:
 
+func InitialiseTokenService() *token.TokenService {
+	db := database.NewDB()
+	userRepository := user.NewUserRepository(db)
+	tokenRepository := token.NewTokenRepository(db, userRepository)
+	userService := user.NewUserService(userRepository)
+	tokenService := token.NewTokenService(tokenRepository, userService)
+	return tokenService
+}
+
 func InitializeUserController() *user.UserController {
 	db := database.NewDB()
 	userRepository := user.NewUserRepository(db)
