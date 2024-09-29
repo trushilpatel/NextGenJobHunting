@@ -1,7 +1,3 @@
-# Saving the markdown content to a .md file
-
-md_content = """
-
 # Next-Gen Job Hunting Backend Setup
 
 This guide will walk you through setting up and running the backend for the Next-Gen Job Hunting project, including setting up Docker, installing Go, setting up live reloading with Air, and using `make` to compile and run the project.
