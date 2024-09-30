@@ -35,7 +35,7 @@ def init_browser():
 def validate_yaml():
     print("Current working directory:", os.getcwd())
 
-    with open(os.path.join(os.getcwd(), "linkedin", "config.yaml"), 'r') as stream:
+    with open(os.path.join(os.getcwd(), "crawlers", "linkedin", "config.yaml"), 'r') as stream:
         try:
             parameters = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
