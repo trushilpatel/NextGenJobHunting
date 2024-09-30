@@ -21,7 +21,6 @@ func LoggingMiddleware() gin.HandlerFunc {
 func AuthMiddleware(tokenService *token.TokenService, userService *user.UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authToken := c.GetHeader("auth_token")
-		fmt.Println(c.GetHeader("auth_token"))
 
 		if authToken == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "auth_token is required"})

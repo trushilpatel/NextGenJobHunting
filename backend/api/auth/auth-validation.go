@@ -47,13 +47,13 @@ func (s *AuthValidationService) SignIn(user *user.User, c *gin.Context) (*token.
 	return token, nil
 }
 
-func (s *AuthValidationService) SignOut(token string, c *gin.Context) error {
-	_, err := utils.ValidateToken(token)
+func (s *AuthValidationService) SignOut(authToken string, c *gin.Context) error {
+	_, err := utils.ValidateToken(authToken)
 	if err != nil {
 		return err
 	}
 
-	err = s.Service.SignOut(token, c)
+	err = s.Service.SignOut(authToken, c)
 	if err != nil {
 		return err
 	}

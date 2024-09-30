@@ -50,9 +50,11 @@ func (ctrl *AuthController) SignIn(c *gin.Context) {
 }
 
 func (ctrl *AuthController) SignOut(c *gin.Context) {
-	var token string
-	if err := c.ShouldBindJSON(&token); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	authToken := c.GetHeader("auth_token")
+
+	err := ctrl.Service.SignOut(authToken, c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to signout"})
 		return
 	}
 
