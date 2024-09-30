@@ -13,11 +13,14 @@ import (
 )
 
 func v1API(router *gin.Engine) {
-	// Version 1 API
+	// Initialize necessary services
+	authMiddleware := middleware.AuthMiddleware(di.InitialiseTokenService(), di.InitialiseUserService())
+
+	// Public routes (e.g., authentication routes)
 	authGroup := router.Group("/api/v1")
 	auth.RegisterAuthRoutes(authGroup, di.InitializeAuthController())
 
-	authMiddleware := middleware.AuthMiddleware(di.InitialiseTokenService(), di.InitialiseUserService())
+	// Protected routes (requires authentication)
 	v1 := router.Group("/api/v1", authMiddleware)
 	{
 		user.RegisterUserRoutes(v1, di.InitializeUserController())
@@ -26,11 +29,24 @@ func v1API(router *gin.Engine) {
 }
 
 func main() {
+	// Load environment variables
 	env.LoadEnvVars()
+
+	// Run auto database migrations
 	RunAutoDBMigrations()
 
+	// Initialize Gin router
 	router := gin.Default()
+
+	// Apply CORS middleware to handle cross-origin requests from React app
+	router.Use(middleware.CORSMiddleware())
+
+	// Apply logging middleware (if any custom logging utility exists)
 	router.Use(utils.Logger())
+
+	// Register API routes (Version 1 API)
 	v1API(router)
+
+	// Start the server
 	router.Run("localhost:" + env.GetPort())
 }
