@@ -28,9 +28,15 @@ cd next-gen-job-hunting-backend
 
 ### Step 2: Set Up Docker and DB
 
-Make sure Docker is running on your machine. Use Docker for containerized database management and services (if applicable). You can spin up a database container with the necessary configurations. Here's an example command to start a PostgreSQL container:
+Make sure Docker is running on your machine. Use Docker for containerized database management and services. You can spin up a database container with the necessary configurations.
 
-Start the Development Database
+**Build Docker Compose**
+
+```sh
+make build_docker
+```
+
+**Start the Development Database**
 
 ```sh
 make dev_db

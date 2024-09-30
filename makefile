@@ -12,6 +12,9 @@ print_db_config:
 kill_port:
 	@pid=$(@lsof -t -i:${PORT:=8080}) && if [ -n "${pid}" ]; then kill -9 $pid; fi
 
+build_docker:
+	cd ./infra && docker-compose -f docker-compose.yml build
+
 dev_db:
 	cd ./infra && docker-compose -f docker-compose.yml up -d
 	
