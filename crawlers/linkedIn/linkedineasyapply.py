@@ -1,10 +1,11 @@
-import time, random, csv, pyautogui, pdb, traceback, sys
+import time
+import random
+import pyautogui
+import traceback
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import StaleElementReferenceException
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from datetime import date, datetime
+
 from itertools import product
 import logging
 
@@ -33,7 +34,7 @@ class JobDetailsScraper:
     def get_job_details(self):
         """Retrieve and print job details."""
         # Define selectors
-        all_job_details_selector = "jobs-search__job-details--wrapper"
+        # all_job_details_selector = "jobs-search__job-details--wrapper"
         company_name_selector = "job-details-jobs-unified-top-card__company-name"
         primary_description_selector = (
             "job-details-jobs-unified-top-card__primary-description-container"
@@ -46,9 +47,9 @@ class JobDetailsScraper:
         applicants_selector = 'div[data-view-name="premium-job-applicant-insights"]'
 
         # Get text details using the helper function
-        all_job_details_text = self.get_inner_text(
-            all_job_details_selector, By.CLASS_NAME
-        )
+        # all_job_details_text = self.get_inner_text(
+        #     all_job_details_selector, By.CLASS_NAME
+        # )
         company_name = self.get_inner_text(company_name_selector, By.CLASS_NAME)
         primary_description_text = self.get_inner_text(
             primary_description_selector, By.CLASS_NAME
@@ -67,7 +68,7 @@ class JobDetailsScraper:
         applicants_text = self.get_inner_text(applicants_selector, By.CSS_SELECTOR)
 
         # Print the collected information
-        print(f"All Job Details: {all_job_details_text}")
+        # print(f"All Job Details: {all_job_details_text}")
         print(f"Company Name: {company_name}")
         print(f"Primary Description: {primary_description_text}")
         print(f"Hirer Name: {hirer_name_text}")
