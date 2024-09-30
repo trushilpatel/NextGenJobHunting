@@ -43,10 +43,10 @@ func (r *UserRepository) GetUserByID(id uint, c *gin.Context) (*User, error) {
 
 func (r *UserRepository) GetUserByEmail(email string, c *gin.Context) (*User, error) {
 	var user User
-	result := r.DB.Model(User{Email: email}).First(&user)
-	if result == nil || result.Error != nil {
+	result := r.DB.Where("email = ?", email).First(&user)
+	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
-			return nil, result.Error // Record not found is not considered an error
+			return nil, nil // Record not found is not considered an error
 		}
 		return nil, result.Error
 	}
