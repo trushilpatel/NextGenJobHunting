@@ -7,7 +7,7 @@ services:
   postgres:
     container_name: next_gen_job_hunting_postgres_db
     build:
-      context: ./postgres
+      context: ./database/backend
       dockerfile: dockerfile
     volumes:
       - next_gen_job_hunting_data:/data/next_gen_job_hunting_postgres
@@ -17,10 +17,27 @@ services:
     env_file:
       # use .env file as per Environment
       # Possible Values: [dev, pro]
-      - ./postgres/.env
       - ../.env
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
+
+  crawler_database:
+    container_name: crawler_database
+    build:
+      context: ./database/crawler
+      dockerfile: dockerfile
+    volumes:
+      - crawler_database_data:/data/crawler_database
+    # restart: unless-stopped
+    environment:
+      PGDATA: "/data/crawler_database"
+    env_file:
+      # use .env file as per Environment
+      # Possible Values: [dev, pro]
+      - ../.env
+    ports:
+      - "${CRAWLER_DB_PORT:-5433}:5432"
 
 volumes:
   next_gen_job_hunting_data:
+  crawler_database_data:
