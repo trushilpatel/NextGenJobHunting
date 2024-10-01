@@ -43,6 +43,22 @@ func (controller *JobPostController) GetJobPostById(c *gin.Context) {
 	c.JSON(http.StatusOK, jobPost)
 }
 
+func (controller *JobPostController) Search(c *gin.Context) {
+	var query JobPostQuery
+	// Bind query params to the JobPostQuery struct
+	if err := c.ShouldBindQuery(&query); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jobPosts, err := controller.Service.Search(query, c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, jobPosts)
+}
+
 func (controller *JobPostController) GetAllJobPosts(c *gin.Context) {
 	jobPosts, err := controller.Service.FindAll(c)
 	if err != nil {

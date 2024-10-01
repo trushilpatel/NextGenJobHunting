@@ -8,20 +8,29 @@ import (
 	"next-gen-job-hunting/api/user"
 
 	"next-gen-job-hunting/api/jobpost"
-
+	userjobpost "next-gen-job-hunting/api/user-job-post"
 	"next-gen-job-hunting/config/database"
 )
 
 var models = []interface{}{
 	&user.User{},
 	&joburl.JobUrl{},
-	&token.Token{},
 	&jobpost.JobPost{},
+	&token.Token{},
+	&userjobpost.UserJobPost{},
 }
 
-var sqlScripts = append([]string{}, jobpost.SqlScripts...)
+var sqlScriptsList = [][]string{
+	userjobpost.UserJobPostScripts,
+	jobpost.SqlScripts,
+}
 
 func RunAutoDBMigrations() {
+	var sqlScripts = []string{}
+	for _, scripts := range sqlScriptsList {
+		sqlScripts = append(sqlScripts, scripts...)
+	}
+
 	db := database.NewDB()
 
 	// Execute SQL scripts to create enums
