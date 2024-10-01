@@ -1,6 +1,7 @@
 package jobpost
 
 import (
+	"next-gen-job-hunting/common/db"
 	"time"
 )
 
@@ -35,7 +36,7 @@ var SqlScripts = []string{
 }
 
 type JobPost struct {
-	ID                          uint           `gorm:"primaryKey" json:"id"`                            // Primary key
+	db.ID
 	JobID                       string         `gorm:"unique;not null;size:50" json:"jobId"`            // Unique Job ID, up to 30 characters
 	JobTitle                    string         `gorm:"not null;size:50" json:"jobTitle"`                // Job title, up to 30 characters
 	EmploymentType              EmploymentType `gorm:"type:varchar(10);not null" json:"employmentType"` // Enum for employment type
@@ -58,5 +59,4 @@ type JobPost struct {
 	Location                    string         `gorm:"size:30" json:"location"`                         // Job location, up to 30 characters
 	AtsKeywords                 string         `gorm:"size:200" json:"atsKeywords"`                     // application tracking system keywords (comma separated) to get top 100% resume ATS score
 	CreatedAt                   time.Time      `gorm:"autoCreateTime" json:"createdAt"`                 // Automatically sets the creation timestamp
-
 }

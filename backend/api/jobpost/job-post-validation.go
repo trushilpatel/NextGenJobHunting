@@ -21,6 +21,11 @@ func (s *JobPostValidationService) Create(jobPost *JobPost, c *gin.Context) erro
 	return s.Service.Create(jobPost, c)
 }
 
+func (s *JobPostValidationService) Search(query JobPostQuery, c *gin.Context) ([]JobPost, error) {
+	query.Validate()
+	return s.Service.Search(query, c)
+}
+
 func (s *JobPostValidationService) FindAll(c *gin.Context) ([]JobPost, error) {
 	return s.Service.FindAll(c)
 }
@@ -47,6 +52,9 @@ func (s *JobPostValidationService) Delete(id uint, c *gin.Context) error {
 }
 
 func validateJobPost(jobPost *JobPost) error {
+	if jobPost.ID.ID != 0 {
+		return errors.New("Id should not be set")
+	}
 	if jobPost.JobTitle == "" {
 		return errors.New("jobTitle is required")
 	}
