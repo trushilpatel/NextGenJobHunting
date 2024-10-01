@@ -1,5 +1,6 @@
 import time
 import random
+from urllib.parse import urlparse
 import pyautogui
 import traceback
 from selenium.common.exceptions import TimeoutException
@@ -8,6 +9,8 @@ from selenium.webdriver.common.by import By
 
 from itertools import product
 import logging
+
+from services.crawled_job_service import CrawledJobService
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -18,69 +21,9 @@ logging.basicConfig(
 )
 
 
-class JobDetailsScraper:
-    def __init__(self, browser):
-        self.browser = browser
-
-    def get_inner_text(self, selector, by=By.CLASS_NAME):
-        """Helper function to get the inner text of an element with error handling."""
-        try:
-            element = self.browser.find_element(by, selector)
-            return element.get_attribute("innerText").strip()
-        except Exception as e:
-            # traceback.print_exc()
-            return None  # Return None if the element is not found
-
-    def get_job_details(self):
-        """Retrieve and print job details."""
-        # Define selectors
-        # all_job_details_selector = "jobs-search__job-details--wrapper"
-        company_name_selector = "job-details-jobs-unified-top-card__company-name"
-        primary_description_selector = (
-            "job-details-jobs-unified-top-card__primary-description-container"
-        )
-        hirer_info_selector = "hirer-card__hirer-information"
-        hirer_link_selector = "div.hirer-card__hirer-information a.app-aware-link"
-        job_insight_selector = "job-details-jobs-unified-top-card__job-insight"
-        job_description_selector = "jobs-description-content__text"
-        company_description_selector = "jobs-company__company-description"
-        applicants_selector = 'div[data-view-name="premium-job-applicant-insights"]'
-
-        # Get text details using the helper function
-        # all_job_details_text = self.get_inner_text(
-        #     all_job_details_selector, By.CLASS_NAME
-        # )
-        company_name = self.get_inner_text(company_name_selector, By.CLASS_NAME)
-        primary_description_text = self.get_inner_text(
-            primary_description_selector, By.CLASS_NAME
-        )
-        hirer_name_text = self.get_inner_text(hirer_info_selector, By.CLASS_NAME)
-        linkedin_profile_link = self.get_inner_text(
-            hirer_link_selector, By.CSS_SELECTOR
-        )
-        job_insight_text = self.get_inner_text(job_insight_selector, By.CLASS_NAME)
-        job_description_text = self.get_inner_text(
-            job_description_selector, By.CLASS_NAME
-        )
-        company_description_text = self.get_inner_text(
-            company_description_selector, By.CLASS_NAME
-        )
-        applicants_text = self.get_inner_text(applicants_selector, By.CSS_SELECTOR)
-
-        # Print the collected information
-        # print(f"All Job Details: {all_job_details_text}")
-        print(f"Company Name: {company_name}")
-        print(f"Primary Description: {primary_description_text}")
-        print(f"Hirer Name: {hirer_name_text}")
-        print(f"LinkedIn Profile Link: {linkedin_profile_link}")
-        print(f"Job Insight: {job_insight_text}")
-        print(f"Job Description: {job_description_text}")
-        print(f"Company Description: {company_description_text}")
-        print(f"Applicants: {applicants_text}")
-
-
 class LinkedinEasyApply:
     def __init__(self, parameters, driver):
+        self.crawled_job_service = CrawledJobService()
         self.browser = driver
         self.email = parameters["email"]
         self.password = parameters["password"]
@@ -217,8 +160,8 @@ class LinkedinEasyApply:
             job_results = self.browser.find_element(
                 By.CLASS_NAME, "jobs-search-results-list"
             )
-            self.scroll_slow(job_results)
-            self.scroll_slow(job_results, step=300, reverse=True)
+            # self.scroll_slow(job_results)
+            # self.scroll_slow(job_results, step=300, reverse=True)
 
             job_list = self.browser.find_elements(
                 By.CLASS_NAME, "scaffold-layout__list-container"
@@ -248,6 +191,12 @@ class LinkedinEasyApply:
                     .get_attribute("href")
                     .split("?")[0]
                 )
+                job_id = None
+                try:
+                    job_id = int(link.rstrip("/").split("/")[-1])
+                except ValueError:
+                    logger.error(f"Invalid job ID in link: {link}")
+                    continue
             except:
                 pass
             try:
@@ -274,15 +223,26 @@ class LinkedinEasyApply:
 
             try:
                 # scroll job details to the bottom and the to the up
-                self.scroll_element("jobs-search__job-details--container", end=1600)
-                self.scroll_element(
-                    "jobs-search__job-details--container",
-                    end=1600,
-                    step=400,
-                    reverse=True,
-                )
+                # self.scroll_element("jobs-search__job-details--container", end=1600)
+                # self.scroll_element(
+                #     "jobs-search__job-details--container",
+                #     end=1600,
+                #     step=400,
+                #     reverse=True,
+                # )
 
-                jobdetails = JobDetailsScraper(self.browser).get_job_details()
+                # Get the current website's base URL
+                current_url = self.browser.current_url
+                base_url = "{0.scheme}://{0.netloc}".format(urlparse(current_url))
+                logger.info(f"Current base URL: {base_url}")
+
+                jobdetails = self.get_job_details()
+
+                self.crawled_job_service.add_crawled_job(
+                    job_id=job_id,
+                    job_data=str(jobdetails),
+                    platform_url=link,
+                )
             except Exception as e:
                 logger.info(e)
                 logger.info(f"Could not apply to the job in {company}")
@@ -428,3 +388,63 @@ class LinkedinEasyApply:
         )
 
         self.avoid_lock()
+
+    def get_inner_text(self, selector, by=By.CLASS_NAME):
+        """Helper function to get the inner text of an element with error handling."""
+        try:
+            element = self.browser.find_element(by, selector)
+            return element.get_attribute("innerText").strip()
+        except Exception as e:
+            # traceback.print_exc()
+            return None  # Return None if the element is not found
+
+    def get_job_details(self):
+        """Retrieve and print job details."""
+        # Define selectors
+        # all_job_details_selector = "jobs-search__job-details--wrapper"
+        company_name_selector = "job-details-jobs-unified-top-card__company-name"
+        primary_description_selector = (
+            "job-details-jobs-unified-top-card__primary-description-container"
+        )
+        hirer_info_selector = "hirer-card__hirer-information"
+        hirer_link_selector = "div.hirer-card__hirer-information a.app-aware-link"
+        job_insight_selector = "job-details-jobs-unified-top-card__job-insight"
+        job_description_selector = "jobs-description-content__text"
+        company_description_selector = "jobs-company__company-description"
+        applicants_selector = 'div[data-view-name="premium-job-applicant-insights"]'
+
+        # Get text details using the helper function
+        # all_job_details_text = self.get_inner_text(
+        #     all_job_details_selector, By.CLASS_NAME
+        # )
+        company_name = self.get_inner_text(company_name_selector, By.CLASS_NAME)
+        primary_description_text = self.get_inner_text(
+            primary_description_selector, By.CLASS_NAME
+        )
+        hirer_name_text = self.get_inner_text(hirer_info_selector, By.CLASS_NAME)
+        linkedin_profile_link = self.get_inner_text(
+            hirer_link_selector, By.CSS_SELECTOR
+        )
+        job_insight_text = self.get_inner_text(job_insight_selector, By.CLASS_NAME)
+        job_description_text = self.get_inner_text(
+            job_description_selector, By.CLASS_NAME
+        )
+        company_description_text = self.get_inner_text(
+            company_description_selector, By.CLASS_NAME
+        )
+        applicants_text = self.get_inner_text(applicants_selector, By.CSS_SELECTOR)
+
+        # Print the collected information
+        # print(f"All Job Details: {all_job_details_text}")
+
+        job_details = {
+            "company_name": company_name,
+            "primary_description": primary_description_text,
+            "hirer_name": hirer_name_text,
+            "linkedin_profile_link": linkedin_profile_link,
+            "job_insight": job_insight_text,
+            "job_description": job_description_text,
+            "company_description": company_description_text,
+            "applicants": applicants_text,
+        }
+        return job_details
