@@ -42,7 +42,7 @@ func (ctrl *AuthController) SignIn(c *gin.Context) {
 
 	token, err := ctrl.Service.SignIn(&user, c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to generate token", "error": err})
 		return
 	}
 

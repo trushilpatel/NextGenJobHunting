@@ -91,7 +91,7 @@ func (v *AuthValidationService) ValidateSignUp(user *user.User, c *gin.Context) 
 func (v *AuthValidationService) ValidateSignIn(user *user.User, c *gin.Context) (*user.User, error) {
 	isAuthenticatedUser, err := v.AuthenticateUser(user, c)
 	if err != nil || !isAuthenticatedUser {
-		return nil, err
+		return nil, fmt.Errorf("unauthorized user")
 	}
 
 	return user, nil
