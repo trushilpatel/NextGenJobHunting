@@ -2,6 +2,7 @@ package main
 
 import (
 	"next-gen-job-hunting/api/auth"
+	"next-gen-job-hunting/api/jobpost"
 	"next-gen-job-hunting/api/joburl"
 	"next-gen-job-hunting/api/user"
 	"next-gen-job-hunting/common/utils"
@@ -22,6 +23,7 @@ func v1API(router *gin.Engine) {
 	{
 		user.RegisterUserRoutes(v1, di.InitializeUserController())
 		joburl.RegisterRoutes(v1, di.InitializeJobUrlController())
+		jobpost.RegisterJobPostRoutes(v1, di.InitialiseJobPostController())
 	}
 }
 

@@ -5,6 +5,7 @@ package di
 
 import (
 	"next-gen-job-hunting/api/auth"
+	"next-gen-job-hunting/api/jobpost"
 	"next-gen-job-hunting/api/joburl"
 	"next-gen-job-hunting/api/token"
 	"next-gen-job-hunting/api/user"
@@ -82,4 +83,16 @@ func InitializeAuthController() *auth.AuthController {
 		auth.NewAuthController,
 	)
 	return &auth.AuthController{}
+}
+
+func InitialiseJobPostController() *jobpost.JobPostController {
+	wire.Build(
+		database.NewDB,
+
+		jobpost.NewJobPostRepository,
+		jobpost.NewJobPostService,
+		jobpost.NewJobPostValidationService,
+		jobpost.NewJobPostController,
+	)
+	return &jobpost.JobPostController{}
 }
