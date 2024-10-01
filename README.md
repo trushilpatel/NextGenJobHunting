@@ -56,6 +56,14 @@ Install Air for live reloading during development.
 go install github.com/cosmtrek/air@latest
 ```
 
+##### 3. Install wire (Golang dependency Injector)
+
+```sh
+go install github.com/google/wire/cmd/wire@latest
+```
+
+make sure you can run "air" and "wire" command in terminal.
+
 ### Step 4: Configure Environment Variables
 
 Ensure that the environment variables required by the project are defined in the .env file located in the root directory.
