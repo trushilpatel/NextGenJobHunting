@@ -1,10 +1,13 @@
-import yaml
+import yaml  # Add this import
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from linkedineasyapply import LinkedinEasyApply
+
+
 import os
+
+from crawlers.linkedIn.linkedineasyapply import LinkedinEasyApply
 
 
 def init_browser():
@@ -33,7 +36,10 @@ def init_browser():
         driver.set_window_position(0, 0)
     except Exception as e:
         print("Error setting window position: ", e)
-    driver.maximize_window()
+    try:
+        driver.maximize_window()
+    except Exception as e:
+        print("Error maximizing window: ", e)
     return driver
 
 
@@ -41,7 +47,7 @@ def validate_yaml():
     print("Current working directory:", os.getcwd())
 
     with open(
-        os.path.join(os.getcwd(), "crawlers", "crawlers", "linkedin", "config.yaml"),
+        os.path.join(os.getcwd(), "crawler", "crawlers", "linkedIn", "config.yaml"),
         "r",
     ) as stream:
         try:
@@ -152,7 +158,7 @@ def validate_yaml():
     return parameters
 
 
-if __name__ == "__main__":
+def run_linkedin_crawler():
     parameters = validate_yaml()
     browser = init_browser()
 
@@ -160,3 +166,7 @@ if __name__ == "__main__":
     bot.login()
     bot.security_check()
     bot.start_applying()
+
+
+if __name__ == "__main__":
+    run_linkedin_crawler()

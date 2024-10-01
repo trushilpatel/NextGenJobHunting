@@ -1,9 +1,5 @@
-from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, func, Enum
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
-
-# status_enum = Enum("new", "In_queue", "completed", name="status_enum")
+from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, func
+from models.base import Base
 
 
 class CrawledJob(Base):

@@ -6,6 +6,7 @@ lxml==4.9.3
 selenium==4.11.2
 pyautogui==0.9.53
 alembic==1.11.1
-SQLAlchemy==2.0.20
 python-dotenv==1.0.0
 psycopg2-binary==2.9.7
+sqlalchemy==2.0.20
+pyyaml==6.0
