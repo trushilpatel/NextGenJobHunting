@@ -38,6 +38,9 @@ func (p *Pagination) Validate() {
 	if p.Limit <= 0 {
 		p.Limit = 10
 	}
+	if p.Limit > 100 {
+		p.Limit = 100
+	}
 
 	if p.SortBy == "" {
 		p.SortBy = "id"
