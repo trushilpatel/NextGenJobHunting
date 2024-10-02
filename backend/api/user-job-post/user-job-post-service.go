@@ -16,6 +16,10 @@ func (s *UserJobPostService) CreateUserJobPost(userJobPost *UserJobPost, c *gin.
 	return s.UserJobPostRepository.Create(userJobPost, c)
 }
 
+func (v *UserJobPostService) FindByJobPostIDAndUserId(userId uint, jobPostID uint, c *gin.Context) (*UserJobPost, error) {
+	return v.UserJobPostRepository.FindByJobPostIDAndUserId(userId, jobPostID, c)
+}
+
 func (s *UserJobPostService) UpdateUserJobPost(userJobPost *UserJobPost, c *gin.Context) (*UserJobPost, error) {
 	return s.UserJobPostRepository.Update(userJobPost, c)
 }

@@ -9,6 +9,7 @@ import (
 	"next-gen-job-hunting/api/joburl"
 	"next-gen-job-hunting/api/token"
 	"next-gen-job-hunting/api/user"
+	user_job_post "next-gen-job-hunting/api/user-job-post"
 
 	"next-gen-job-hunting/config/database"
 
@@ -90,6 +91,9 @@ func InitialiseJobPostController() *jobpost.JobPostController {
 		database.NewDB,
 
 		jobpost.NewJobPostRepository,
+		user_job_post.NewUserJobPostRepository,
+		user_job_post.NewUserJobPostService,
+		user_job_post.NewUserJobPostValidationService,
 		jobpost.NewJobPostService,
 		jobpost.NewJobPostValidationService,
 		jobpost.NewJobPostController,

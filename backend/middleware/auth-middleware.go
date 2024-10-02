@@ -44,7 +44,7 @@ func AuthMiddleware(tokenService *token.TokenService, userService *user.UserServ
 		user, err := userService.GetUserByID(tokenData.UserId, c)
 		c.Set("user", user)
 		fmt.Println("**************USER ID**************")
-		fmt.Println(tokenData.User)
+		fmt.Println(user)
 		c.Next()
 	}
 }

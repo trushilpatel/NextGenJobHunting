@@ -6,9 +6,9 @@ import (
 	"next-gen-job-hunting/api/joburl"
 	"next-gen-job-hunting/api/token"
 	"next-gen-job-hunting/api/user"
+	userjobpost "next-gen-job-hunting/api/user-job-post"
 
 	"next-gen-job-hunting/api/jobpost"
-	userjobpost "next-gen-job-hunting/api/user-job-post"
 	"next-gen-job-hunting/config/database"
 )
 

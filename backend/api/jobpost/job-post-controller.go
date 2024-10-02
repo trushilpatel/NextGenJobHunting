@@ -81,6 +81,20 @@ func (controller *JobPostController) UpdateJobPost(c *gin.Context) {
 	c.JSON(http.StatusOK, jobPost)
 }
 
+func (controller *JobPostController) UpdateJobPostStatus(c *gin.Context) {
+	var updateUserJobPostDto JobPostUserJobPostDto
+	if err := c.ShouldBindJSON(&updateUserJobPostDto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if _, err := controller.Service.UpdateJobPostStatus(&updateUserJobPostDto, c); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, updateUserJobPostDto)
+}
+
 func (controller *JobPostController) DeleteJobPost(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

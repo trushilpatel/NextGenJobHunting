@@ -1,7 +1,6 @@
 package user_job_post
 
 import (
-	"next-gen-job-hunting/api/jobpost"
 	"next-gen-job-hunting/api/user"
 	"next-gen-job-hunting/common/db"
 	"time"
@@ -39,6 +38,9 @@ type UserJobPost struct {
 	ResumeScore          int                  `json:"resumeScore"`                                                         // Score given by an ATS for the resume
 	db.CreatedAt
 	db.UpdatedAt
-	User    user.User       `gorm:"foreignKey:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	JobPost jobpost.JobPost `gorm:"foreignKey:JobPostId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	User user.User `gorm:"foreignKey:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	// there is a circular dependency between user_job_post and job_post how ever there is no need to import job_post here
+	// we just need a relation to job_post
+	//JobPost jobpost.JobPost `gorm:"foreignKey:JobPostId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+
 }

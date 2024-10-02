@@ -2,82 +2,66 @@ package jobpost
 
 import (
 	"fmt"
+	"next-gen-job-hunting/api/user"
+	user_job_post "next-gen-job-hunting/api/user-job-post"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type JobPostService struct {
-	Repo *JobPostRepository
+	Repo               *JobPostRepository
+	UserJobPostService *user_job_post.UserJobPostValidationService
 }
 
-func NewJobPostService(repo *JobPostRepository) *JobPostService {
-	return &JobPostService{Repo: repo}
+func NewJobPostService(repo *JobPostRepository, userJobPostService *user_job_post.UserJobPostValidationService) *JobPostService {
+	return &JobPostService{Repo: repo, UserJobPostService: userJobPostService}
 }
 
 func (s *JobPostService) Create(jobPost *JobPost, c *gin.Context) error {
 	return s.Repo.Create(jobPost, c)
 }
 
-func (s *JobPostService) Search(query JobPostQuery, c *gin.Context) ([]JobPost, error) {
-	db := s.Repo.DB
+func (s *JobPostService) UpdateJobPostStatus(updateJobPostDto *JobPostUserJobPostDto, c *gin.Context) (*JobPostUserJobPostDto, error) {
+	u, exists := c.Get("user")
+	if !exists {
+		return nil, fmt.Errorf("user not found in context")
+	}
+	user, ok := u.(*user.User)
+	if !ok {
+		return nil, fmt.Errorf("user type assertion failed")
+	}
 
-	fmt.Printf("JobPostId: %d\n", query.JobPostId)
-	fmt.Printf("UserId: %d\n", query.UserId)
-	fmt.Printf("IsEligible: %t\n", query.IsEligible)
-	fmt.Printf("IsRequireUSAPerson: %t\n", query.IsRequireUSAPerson)
-	fmt.Printf("JobApplicationStatus: %s\n", query.JobApplicationStatus)
-	fmt.Printf("Hirer: %s\n", query.Hirer)
-	fmt.Printf("Location: %s\n", query.Location)
+	userId := user.ID.ID
+	existingUserJobPost, err := s.UserJobPostService.FindByJobPostIDAndUserId(userId, updateJobPostDto.ID.ID, c)
 
-	// Apply pagination before building the query
-
-	db = query.Pagination.ApplyToDB(db)
-
-	// Apply filters
-	if query.JobPostId != 0 {
-		jobPost, err := s.FindByID(query.JobPostId, c)
+	if err != nil && existingUserJobPost == nil {
+		// UserJobPost does not exist, create a new one
+		newUserJobPost := &user_job_post.UserJobPost{
+			JobPostId:            updateJobPostDto.ID.ID,
+			UserId:               userId,
+			JobApplicationStatus: updateJobPostDto.JobApplicationStatus,
+		}
+		_, err = s.UserJobPostService.CreateUserJobPost(newUserJobPost, c)
 		if err != nil {
 			return nil, err
 		}
-		return []JobPost{*jobPost}, nil
-	}
-	if query.UserId != 0 {
-		// You will have to implement this part
-		// db = db.Where("user_id = ?", query.UserId)
-	}
-	if query.IsEligible {
-		// You will have to implement this part as well
-		// db = db.Where("is_eligible = ?", query.IsEligible)
-	}
-	if query.IsRequireUSAPerson {
-		db = db.Where("is_require_usa_person = ?", query.IsRequireUSAPerson)
-	}
-	// if query.JobApplicationStatus != "" {
-	// 	db = db.Where("job_application_status = ?", query.JobApplicationStatus)
-	// }
-	if query.Hirer != "" {
-		db = db.Where("hirer LIKE ?", "%"+query.Hirer+"%")
-	}
-	if query.Location != "" {
-		db = db.Where("location LIKE ?", "%"+query.Location+"%")
-	}
+		updateJobPostDto.UserJobPost = *newUserJobPost
+		return updateJobPostDto, nil
+	} else {
+		// Update the existing UserJobPost
+		existingUserJobPost.JobApplicationStatus = updateJobPostDto.JobApplicationStatus
+		savedDto, err := s.UserJobPostService.UpdateUserJobPost(existingUserJobPost, c)
+		if err != nil {
+			return nil, err
+		}
+		updateJobPostDto.UserJobPost = *savedDto
 
-	// Generate the SQL query string for debugging purposes
-	queryStr := db.Model(&JobPost{}).Find(&[]JobPost{}).ToSQL(func(tx *gorm.DB) *gorm.DB {
-		return tx
-	})
-
-	// Print the final SQL query
-	fmt.Printf("Final DB Query: %s\n", queryStr)
-
-	// Now execute the query only once
-	var jobPosts []JobPost
-	if err := db.Find(&jobPosts).Error; err != nil {
-		return nil, err
+		return updateJobPostDto, nil
 	}
+}
 
-	return jobPosts, nil
+func (s *JobPostService) Search(query JobPostQuery, c *gin.Context) ([]JobPostUserJobPostDto, error) {
+	return s.Repo.Search(query, c)
 }
 
 func (s *JobPostService) FindAll(c *gin.Context) ([]JobPost, error) {

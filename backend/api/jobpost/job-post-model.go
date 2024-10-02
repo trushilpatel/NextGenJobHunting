@@ -1,6 +1,7 @@
 package jobpost
 
 import (
+	userjobpost "next-gen-job-hunting/api/user-job-post"
 	"next-gen-job-hunting/common/db"
 	"time"
 )
@@ -59,4 +60,9 @@ type JobPost struct {
 	Location                    string         `gorm:"size:30" json:"location"`                         // Job location, up to 30 characters
 	AtsKeywords                 string         `gorm:"size:200" json:"atsKeywords"`                     // application tracking system keywords (comma separated) to get top 100% resume ATS score
 	CreatedAt                   time.Time      `gorm:"autoCreateTime" json:"createdAt"`                 // Automatically sets the creation timestamp
+}
+
+type JobPostUserJobPostDto struct {
+	JobPost
+	userjobpost.UserJobPost
 }

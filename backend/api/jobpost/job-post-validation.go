@@ -2,6 +2,7 @@ package jobpost
 
 import (
 	"errors"
+	user_job_post "next-gen-job-hunting/api/user-job-post"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +16,16 @@ func NewJobPostValidationService(service *JobPostService) *JobPostValidationServ
 }
 
 func (s *JobPostValidationService) Create(jobPost *JobPost, c *gin.Context) error {
+	if jobPost.ID.ID != 0 {
+		return errors.New("Id should not be set")
+	}
 	if err := validateJobPost(jobPost); err != nil {
 		return err
 	}
 	return s.Service.Create(jobPost, c)
 }
 
-func (s *JobPostValidationService) Search(query JobPostQuery, c *gin.Context) ([]JobPost, error) {
+func (s *JobPostValidationService) Search(query JobPostQuery, c *gin.Context) ([]JobPostUserJobPostDto, error) {
 	query.Validate()
 	return s.Service.Search(query, c)
 }
@@ -44,6 +48,28 @@ func (s *JobPostValidationService) Update(jobPost *JobPost, c *gin.Context) erro
 	return s.Service.Update(jobPost, c)
 }
 
+func (s *JobPostValidationService) UpdateJobPostStatus(updateJobPostDto *JobPostUserJobPostDto, c *gin.Context) (*JobPostUserJobPostDto, error) {
+	if updateJobPostDto.ID.ID == 0 {
+		return nil, errors.New("job Id Should be provided")
+	}
+	if err := validateJobPost(&updateJobPostDto.JobPost); err != nil {
+		return nil, err
+	}
+	if updateJobPostDto.JobApplicationStatus == "" {
+		return nil, errors.New("jobApplicationStatus is required")
+	}
+
+	if updateJobPostDto.JobApplicationStatus != user_job_post.Saved &&
+		updateJobPostDto.JobApplicationStatus != user_job_post.Applied &&
+		updateJobPostDto.JobApplicationStatus != user_job_post.Interview &&
+		updateJobPostDto.JobApplicationStatus != user_job_post.Offered &&
+		updateJobPostDto.JobApplicationStatus != user_job_post.Rejected &&
+		updateJobPostDto.JobApplicationStatus != user_job_post.Withdrawn {
+		return nil, errors.New("Invalid job application status")
+	}
+	return s.Service.UpdateJobPostStatus(updateJobPostDto, c)
+}
+
 func (s *JobPostValidationService) Delete(id uint, c *gin.Context) error {
 	if id == 0 {
 		return errors.New("invalid job post ID")
@@ -52,9 +78,7 @@ func (s *JobPostValidationService) Delete(id uint, c *gin.Context) error {
 }
 
 func validateJobPost(jobPost *JobPost) error {
-	if jobPost.ID.ID != 0 {
-		return errors.New("Id should not be set")
-	}
+
 	if jobPost.JobTitle == "" {
 		return errors.New("jobTitle is required")
 	}
