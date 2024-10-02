@@ -1,7 +1,7 @@
 package jobpost
 
 import (
-	"fmt"
+	"next-gen-job-hunting/api/common"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -18,16 +18,12 @@ func NewJobPostRepository(db *gorm.DB) *JobPostRepository {
 func (r *JobPostRepository) Create(jobPost *JobPost, c *gin.Context) error {
 	return r.DB.Create(jobPost).Error
 }
-func (s *JobPostRepository) Search(query JobPostQuery, c *gin.Context) ([]JobPostUserJobPostDto, error) {
-	db := s.DB
+func (s *JobPostRepository) Search(query JobPostQuery, c *gin.Context) (common.PaginationData, error) {
+	response := &common.PaginationData{
+		Pagination: query.Pagination,
+	}
 
-	fmt.Printf("JobPostId: %d\n", query.JobPostId)
-	fmt.Printf("UserId: %d\n", query.UserId)
-	fmt.Printf("IsEligible: %t\n", query.IsEligible)
-	fmt.Printf("IsRequireUSAPerson: %t\n", query.IsRequireUSAPerson)
-	fmt.Printf("JobApplicationStatus: %s\n", query.JobApplicationStatus)
-	fmt.Printf("Hirer: %s\n", query.Hirer)
-	fmt.Printf("Location: %s\n", query.Location)
+	db := s.DB
 
 	// Apply pagination before building the query
 	db = query.Pagination.ApplyToDB(db)
@@ -59,13 +55,23 @@ func (s *JobPostRepository) Search(query JobPostQuery, c *gin.Context) ([]JobPos
 		db = db.Where("ujp.job_application_status = ?", query.JobApplicationStatus)
 	}
 
-	// Execute the query
+	var totalCount int64
+	if err := db.Count(&totalCount).Error; err != nil {
+		return *response, err
+	}
 	var jobPosts []JobPostUserJobPostDto
 	if err := db.Scan(&jobPosts).Error; err != nil {
-		return nil, err
+		return *response, err
 	}
 
-	return jobPosts, nil
+	// prepare data
+	interfaceData := make([]interface{}, len(jobPosts))
+	for i, v := range jobPosts {
+		interfaceData[i] = v
+	}
+	response.Pagination.TotalItems = totalCount
+	response.Data = interfaceData
+	return *response, nil
 }
 
 func (r *JobPostRepository) FindAll(c *gin.Context) ([]JobPost, error) {

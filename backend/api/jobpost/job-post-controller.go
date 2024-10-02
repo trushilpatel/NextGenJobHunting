@@ -51,12 +51,13 @@ func (controller *JobPostController) Search(c *gin.Context) {
 		return
 	}
 
-	jobPosts, err := controller.Service.Search(query, c)
+	data, err := controller.Service.Search(query, c)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, jobPosts)
+	c.JSON(http.StatusOK, data)
 }
 
 func (controller *JobPostController) GetAllJobPosts(c *gin.Context) {

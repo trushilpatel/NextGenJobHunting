@@ -2,6 +2,7 @@ package jobpost
 
 import (
 	"fmt"
+	"next-gen-job-hunting/api/common"
 	"next-gen-job-hunting/api/user"
 	user_job_post "next-gen-job-hunting/api/user-job-post"
 
@@ -60,7 +61,7 @@ func (s *JobPostService) UpdateJobPostStatus(updateJobPostDto *JobPostUserJobPos
 	}
 }
 
-func (s *JobPostService) Search(query JobPostQuery, c *gin.Context) ([]JobPostUserJobPostDto, error) {
+func (s *JobPostService) Search(query JobPostQuery, c *gin.Context) (common.PaginationData, error) {
 	return s.Repo.Search(query, c)
 }
 
