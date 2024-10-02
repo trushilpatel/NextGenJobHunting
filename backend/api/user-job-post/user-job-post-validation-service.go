@@ -24,6 +24,16 @@ func (v *UserJobPostValidationService) CreateUserJobPost(userJobPost *UserJobPos
 	return v.Service.CreateUserJobPost(userJobPost, c)
 }
 
+func (v *UserJobPostValidationService) FindByJobPostIDAndUserId(userId uint, jobPostID uint, c *gin.Context) (*UserJobPost, error) {
+	if userId == 0 {
+		return nil, errors.New("invalid UserId: must be non-empty")
+	}
+	if jobPostID == 0 {
+		return nil, errors.New("invalid JobPostId: must be non-empty")
+	}
+	return v.Service.FindByJobPostIDAndUserId(userId, jobPostID, c)
+}
+
 func (v *UserJobPostValidationService) UpdateUserJobPost(userJobPost *UserJobPost, c *gin.Context) (*UserJobPost, error) {
 	if err := v.validateJobPost(userJobPost); err != nil {
 		return nil, err

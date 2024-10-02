@@ -12,6 +12,7 @@ import (
 	"next-gen-job-hunting/api/joburl"
 	"next-gen-job-hunting/api/token"
 	"next-gen-job-hunting/api/user"
+	"next-gen-job-hunting/api/user-job-post"
 	"next-gen-job-hunting/config/database"
 )
 
@@ -67,7 +68,10 @@ func InitializeAuthController() *auth.AuthController {
 func InitialiseJobPostController() *jobpost.JobPostController {
 	db := database.NewDB()
 	jobPostRepository := jobpost.NewJobPostRepository(db)
-	jobPostService := jobpost.NewJobPostService(jobPostRepository)
+	userJobPostRepository := user_job_post.NewUserJobPostRepository(db)
+	userJobPostService := user_job_post.NewUserJobPostService(userJobPostRepository)
+	userJobPostValidationService := user_job_post.NewUserJobPostValidationService(userJobPostService)
+	jobPostService := jobpost.NewJobPostService(jobPostRepository, userJobPostValidationService)
 	jobPostValidationService := jobpost.NewJobPostValidationService(jobPostService)
 	jobPostController := jobpost.NewJobPostController(jobPostValidationService)
 	return jobPostController
