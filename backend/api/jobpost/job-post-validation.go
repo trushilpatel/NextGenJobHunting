@@ -2,6 +2,7 @@ package jobpost
 
 import (
 	"errors"
+	"next-gen-job-hunting/api/common"
 	user_job_post "next-gen-job-hunting/api/user-job-post"
 
 	"github.com/gin-gonic/gin"
@@ -25,8 +26,11 @@ func (s *JobPostValidationService) Create(jobPost *JobPost, c *gin.Context) erro
 	return s.Service.Create(jobPost, c)
 }
 
-func (s *JobPostValidationService) Search(query JobPostQuery, c *gin.Context) ([]JobPostUserJobPostDto, error) {
-	query.Validate()
+func (s *JobPostValidationService) Search(query JobPostQuery, c *gin.Context) (common.PaginationData, error) {
+	if err := query.Validate(); err != nil {
+		return common.PaginationData{}, err
+	}
+
 	return s.Service.Search(query, c)
 }
 

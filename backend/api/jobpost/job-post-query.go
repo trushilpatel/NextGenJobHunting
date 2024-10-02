@@ -1,9 +1,16 @@
 package jobpost
 
 import (
+	"fmt"
 	"next-gen-job-hunting/api/common"
 	userjobpost "next-gen-job-hunting/api/user-job-post"
 )
+
+var AllowedSortFields = []string{
+	"id", "job_post_id", "job_application_status",
+	"job_id", "job_title", "employment_type", "job_type", "contract_length",
+	"industry", "job_posted_date", "applicants", "hirer",
+}
 
 // JobPostQuery holds the filter and pagination params for the job post search
 type JobPostQuery struct {
@@ -18,9 +25,12 @@ type JobPostQuery struct {
 }
 
 // Validate validates the JobPostQuery and sets default values if necessary
-func (q *JobPostQuery) Validate() {
-	q.Pagination.Validate()
-	if q.Pagination.SortBy == "" || (q.Pagination.SortBy != "CreatedAt" && q.Pagination.SortBy != "JobPostedDate" && q.Pagination.SortBy != "Applicants") {
+func (q *JobPostQuery) Validate() error {
+	fmt.Print(q.Pagination)
+	if err := q.Pagination.ValidateSortBy(AllowedSortFields); err != nil {
+		return err
+	}
+	if q.Pagination.SortBy == "" {
 		q.Pagination.SortBy = "id"
 	}
 	if q.JobApplicationStatus != "" &&
@@ -32,4 +42,7 @@ func (q *JobPostQuery) Validate() {
 		q.JobApplicationStatus != userjobpost.Withdrawn {
 		q.JobApplicationStatus = ""
 	}
+	fmt.Print(q.Pagination)
+
+	return nil
 }
