@@ -26,6 +26,46 @@ var UserJobPostScripts = []string{
 	END$$;`,
 }
 
+// UserJobPost represents the association between a user and a job post.
+//
+// swagger:model UserJobPost
+//
+// Fields:
+//   - JobPostId: Foreign key to the job_post table.
+//     required: true
+//     example: 1
+//   - UserId: Foreign key to the user table.
+//     required: true
+//     example: 1
+//   - IsEligible: Indicates whether the user is eligible for the job.
+//     required: false
+//     example: false
+//   - JobApplicationStatus: Status of the job application.
+//     required: true
+//     example: Saved
+//   - AppliedAt: Timestamp when the user applied for the job.
+//     required: false
+//     example: 2023-01-01T00:00:00Z
+//   - ResumeId: ID referencing the user's resume.
+//     required: false
+//     example: 1
+//   - CoverLetterId: ID referencing the user's cover letter.
+//     required: false
+//     example: 1
+//   - IsStatusHidden: Flag to indicate if the user wants to hide the job application status.
+//     required: false
+//     example: false
+//   - ResumeScore: Score given by an ATS for the resume.
+//     required: false
+//     example: 85
+//   - CreatedAt: Timestamp when the record was created.
+//     required: true
+//     example: 2023-01-01T00:00:00Z
+//   - UpdatedAt: Timestamp when the record was last updated.
+//     required: true
+//     example: 2023-01-01T00:00:00Z
+//   - User: The user associated with this job post.
+//     required: true
 type UserJobPost struct {
 	JobPostId            uint                 `gorm:"not null" json:"jobPostId"`                                           // Foreign key to job_post table
 	UserId               uint                 `gorm:"not null" json:"userId"`                                              // Foreign key to user table
