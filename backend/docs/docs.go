@@ -29,7 +29,7 @@ const docTemplate = `{
                 "summary": "Log in a user",
                 "parameters": [
                     {
-                        "description": "User",
+                        "description": "User (only email and password required)",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -42,22 +42,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Signin successful",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/exception.CommonException"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/exception.CommonException"
                         }
                     },
                     "500": {
                         "description": "Failed to generate token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/exception.CommonException"
                         }
                     }
                 }
@@ -85,8 +82,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Signout successful",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/exception.CommonException"
                         }
                     },
                     "500": {
@@ -125,8 +121,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Signup successful",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/exception.CommonException"
                         }
                     },
                     "400": {

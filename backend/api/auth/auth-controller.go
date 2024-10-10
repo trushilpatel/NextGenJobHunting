@@ -26,7 +26,7 @@ func NewAuthController(validator *AuthValidationService) *AuthController {
 // @Accept json
 // @Produce json
 // @Param user body user.User true "User"
-// @Success 200 {object} map[string]interface{} "Signup successful"
+// @Success 200 {object} exception.CommonException "Signup successful"
 // @Failure 400 {object} exception.CommonException "Invalid input"
 // @Failure 500 {object} exception.CommonException "Failed to generate token"
 // @Router /auth/signup [post]
@@ -51,10 +51,10 @@ func (ctrl *AuthController) SignUp(c *gin.Context) {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param user body user.User true "User"
-// @Success 200 {object} map[string]interface{} "Signin successful"
-// @Failure 400 {object} map[string]interface{} "Invalid input"
-// @Failure 500 {object} map[string]interface{} "Failed to generate token"
+// @Param user body user.User true "User (only email and password required)"
+// @Success 200 {object} exception.CommonException "Signin successful"
+// @Failure 400 {object} exception.CommonException "Invalid input"
+// @Failure 500 {object} exception.CommonException "Failed to generate token"
 // @Router /auth/signin [post]
 func (ctrl *AuthController) SignIn(c *gin.Context) {
 	var user user.User
@@ -77,7 +77,7 @@ func (ctrl *AuthController) SignIn(c *gin.Context) {
 // @Tags Auth
 // @Produce json
 // @Param auth_token header string true "Auth Token"
-// @Success 200 {object} map[string]interface{} "Signout successful"
+// @Success 200 {object} exception.CommonException "Signout successful"
 // @Failure 500 {object} exception.CommonException "Failed to signout"
 // @Router /auth/signout [post]
 func (ctrl *AuthController) SignOut(c *gin.Context) {

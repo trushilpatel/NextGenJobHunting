@@ -359,7 +359,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: User
+      - description: User (only email and password required)
         in: body
         name: user
         required: true
@@ -371,18 +371,15 @@ paths:
         "200":
           description: Signin successful
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/exception.CommonException'
         "400":
           description: Invalid input
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/exception.CommonException'
         "500":
           description: Failed to generate token
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/exception.CommonException'
       summary: Log in a user
       tags:
       - Auth
@@ -400,8 +397,7 @@ paths:
         "200":
           description: Signout successful
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/exception.CommonException'
         "500":
           description: Failed to signout
           schema:
@@ -426,8 +422,7 @@ paths:
         "200":
           description: Signup successful
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/exception.CommonException'
         "400":
           description: Invalid input
           schema:
