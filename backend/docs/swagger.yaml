@@ -1,0 +1,359 @@
+basePath: /api/v1
+definitions:
+  exception.CommonException:
+    properties:
+      error_details:
+        description: |-
+          Optional details about the error
+          @example "User ID does not exist"
+        type: string
+      message:
+        description: |-
+          Error message
+          @example "Resource not found"
+        type: string
+      status:
+        description: |-
+          HTTP status code
+          @example 404
+        type: integer
+      timestamp:
+        description: |-
+          The time the error occurred
+          @example "2023-10-09T14:48:00Z"
+        type: string
+    type: object
+  joburl.JobUrl:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      priority:
+        description: Default priority set to 'low'
+        type: string
+      status:
+        description: Status field, e.g., "pending", "completed"
+        type: string
+      updated_at:
+        type: string
+      url:
+        description: URL field with a max length of 2048 characters
+        type: string
+      userId:
+        type: integer
+    type: object
+  user.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      firstname:
+        type: string
+      id:
+        type: integer
+      lastname:
+        type: string
+      password:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Automating resume and cover letter generation, allowing users to easily
+    tailor their applications to specific job opportunities while highlighting their
+    unique skills and experiences.
+  title: Next Gen Job Hunting API
+  version: "1.0"
+paths:
+  /joburl:
+    get:
+      description: Get all job URLs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/joburl.JobUrl'
+            type: array
+        "500":
+          description: Could not fetch job URLs
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Get all job URLs
+      tags:
+      - joburl
+    post:
+      consumes:
+      - application/json
+      description: Create a new job URL for a user
+      parameters:
+      - description: Job URL
+        in: body
+        name: job
+        required: true
+        schema:
+          $ref: '#/definitions/joburl.JobUrl'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/joburl.JobUrl'
+        "400":
+          description: Invalid request payload
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Could not create Job URL
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Create a new job URL
+      tags:
+      - joburl
+  /joburl/{id}:
+    delete:
+      description: Delete a job URL by its ID
+      parameters:
+      - description: Job URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Job URL deleted successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "404":
+          description: Job URL not found
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Could not delete Job URL
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Delete a job URL by ID
+      tags:
+      - joburl
+    get:
+      description: Get a job URL by its ID
+      parameters:
+      - description: Job URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/joburl.JobUrl'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "404":
+          description: Job URL not found
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Could not fetch Job URL
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Get a job URL by ID
+      tags:
+      - joburl
+    put:
+      consumes:
+      - application/json
+      description: Update a job URL by its ID
+      parameters:
+      - description: Job URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Job URL
+        in: body
+        name: job
+        required: true
+        schema:
+          $ref: '#/definitions/joburl.JobUrl'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/joburl.JobUrl'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Could not update Job URL
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Update a job URL by ID
+      tags:
+      - joburl
+  /users:
+    get:
+      description: Get all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/user.User'
+            type: array
+        "400":
+          description: Error occurred while retrieving users
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Get all users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the input payload
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/user.User'
+        "400":
+          description: Invalid request payload
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Service not initialized" "User not initialized" "Unable to
+            create user
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Unable to delete user
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Delete a user by ID
+      tags:
+      - users
+    get:
+      description: Get a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.User'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Get a user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.User'
+        "400":
+          description: Invalid user ID" "Invalid request payload
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Unable to update user
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Update a user by ID
+      tags:
+      - users
+swagger: "2.0"
