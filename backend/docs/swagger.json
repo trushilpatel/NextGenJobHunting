@@ -9,6 +9,389 @@
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
+        "/jobposts": {
+            "get": {
+                "description": "Get all job posts",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobpost"
+                ],
+                "summary": "Get all job posts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/jobpost.JobPost"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve job posts",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing job post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobpost"
+                ],
+                "summary": "Update a job post",
+                "parameters": [
+                    {
+                        "description": "Job Post",
+                        "name": "jobPost",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/jobpost.JobPost"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/jobpost.JobPost"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update job post",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new job post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobpost"
+                ],
+                "summary": "Create a job post",
+                "parameters": [
+                    {
+                        "description": "Job Post",
+                        "name": "jobPost",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/jobpost.JobPost"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/jobpost.JobPost"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create job post",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    }
+                }
+            }
+        },
+        "/jobposts/search": {
+            "get": {
+                "description": "Search job posts based on query parameters",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobpost"
+                ],
+                "summary": "Search job posts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hirer name for filtering",
+                        "name": "hirer",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Eligibility flag",
+                        "name": "isEligible",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "USA person requirement flag",
+                        "name": "isRequireUSAPerson",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "Saved",
+                            "Applied",
+                            "Interview",
+                            "Offered",
+                            "Rejected",
+                            "Withdrawn"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "Saved",
+                            "Applied",
+                            "Interview",
+                            "Offered",
+                            "Rejected",
+                            "Withdrawn"
+                        ],
+                        "description": "Job application status filter",
+                        "name": "jobApplicationStatus",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "JobPost ID for filtering",
+                        "name": "jobPostId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page, default is 10\nin: query\ndefault: 10",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job location filter",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc or desc), default is \"asc\"\nin: query\ndefault: asc",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number, default is 1\nin: query\ndefault: 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to sort by, default is \"id\"\nin: query\ndefault: id",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Total number of items",
+                        "name": "totalItems",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID for filtering",
+                        "name": "userId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.PaginationData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/jobpost.JobPost"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to search job posts",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    }
+                }
+            }
+        },
+        "/jobposts/status": {
+            "put": {
+                "description": "Update the status of a job post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobpost"
+                ],
+                "summary": "Update job post status",
+                "parameters": [
+                    {
+                        "description": "Update Job Post Status",
+                        "name": "updateUserJobPostDto",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/jobpost.JobPostUserJobPostDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/jobpost.JobPostUserJobPostDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update job post status",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    }
+                }
+            }
+        },
+        "/jobposts/{id}": {
+            "get": {
+                "description": "Get a job post by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobpost"
+                ],
+                "summary": "Get a job post by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Job Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/jobpost.JobPost"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    },
+                    "404": {
+                        "description": "Job post not found",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a job post by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobpost"
+                ],
+                "summary": "Delete a job post",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Job Post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete job post",
+                        "schema": {
+                            "$ref": "#/definitions/exception.CommonException"
+                        }
+                    }
+                }
+            }
+        },
         "/joburl": {
             "get": {
                 "description": "Get all job URLs",
@@ -440,6 +823,43 @@
         }
     },
     "definitions": {
+        "common.Pagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "description": "Number of items per page, default is 10\nin: query\ndefault: 10",
+                    "type": "integer"
+                },
+                "order": {
+                    "description": "Sort order (asc or desc), default is \"asc\"\nin: query\ndefault: asc",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "Page number, default is 1\nin: query\ndefault: 1",
+                    "type": "integer"
+                },
+                "sortBy": {
+                    "description": "Field to sort by, default is \"id\"\nin: query\ndefault: id",
+                    "type": "string"
+                },
+                "totalItems": {
+                    "description": "Total number of items",
+                    "type": "integer"
+                }
+            }
+        },
+        "common.PaginationData": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {}
+                },
+                "pagination": {
+                    "$ref": "#/definitions/common.Pagination"
+                }
+            }
+        },
         "exception.CommonException": {
             "type": "object",
             "properties": {
@@ -460,6 +880,288 @@
                     "type": "string"
                 }
             }
+        },
+        "jobpost.EmploymentType": {
+            "type": "string",
+            "enum": [
+                "Full-time",
+                "Part-time",
+                "Contract",
+                "Internship"
+            ],
+            "x-enum-varnames": [
+                "FullTime",
+                "PartTime",
+                "Contract",
+                "Internship"
+            ]
+        },
+        "jobpost.JobPost": {
+            "type": "object",
+            "properties": {
+                "applicants": {
+                    "description": "Number of applicants for the job",
+                    "type": "integer"
+                },
+                "applicationLink": {
+                    "description": "URL where applicants can apply for the job\nrequired: true",
+                    "type": "string"
+                },
+                "atsKeywords": {
+                    "description": "Keywords for the application tracking system",
+                    "type": "string"
+                },
+                "contractLength": {
+                    "description": "Duration of the contract, if applicable",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "Automatically sets the creation timestamp",
+                    "type": "string"
+                },
+                "educationLevel": {
+                    "description": "Minimum education level required for the job",
+                    "type": "string"
+                },
+                "employmentType": {
+                    "description": "Type of employment (e.g., full-time, part-time)\nrequired: true",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/jobpost.EmploymentType"
+                        }
+                    ]
+                },
+                "hirer": {
+                    "description": "The company or person responsible for hiring",
+                    "type": "string"
+                },
+                "hirerProfileLink": {
+                    "description": "Profile link of the hirer (e.g., LinkedIn, company page)",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "industry": {
+                    "description": "Industry related to the job",
+                    "type": "string"
+                },
+                "isRequireUSAPerson": {
+                    "description": "Indicates if the person must be a U.S. citizen or permanent resident",
+                    "type": "boolean"
+                },
+                "isSecurityClearanceRequired": {
+                    "description": "Indicates if security clearance is required",
+                    "type": "boolean"
+                },
+                "jobDescription": {
+                    "description": "Detailed description of the job\nrequired: true",
+                    "type": "string"
+                },
+                "jobId": {
+                    "description": "Unique identifier for the job post\nrequired: true",
+                    "type": "string"
+                },
+                "jobPostedDate": {
+                    "description": "Date when the job was posted\nrequired: true",
+                    "type": "string"
+                },
+                "jobTitle": {
+                    "description": "Title of the job\nrequired: true",
+                    "type": "string"
+                },
+                "jobType": {
+                    "description": "Type of job (e.g., contract, freelance)\nrequired: true",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/jobpost.JobType"
+                        }
+                    ]
+                },
+                "location": {
+                    "description": "Location of the job",
+                    "type": "string"
+                },
+                "minimumExperienceRequired": {
+                    "description": "Minimum experience required for the job",
+                    "type": "integer"
+                },
+                "requiredSkills": {
+                    "description": "Skills required for the job",
+                    "type": "string"
+                },
+                "salaryRange": {
+                    "description": "Salary range for the job",
+                    "type": "string"
+                },
+                "visaSponsorshipDetails": {
+                    "description": "Visa sponsorship information, if any",
+                    "type": "string"
+                }
+            }
+        },
+        "jobpost.JobPostUserJobPostDto": {
+            "type": "object",
+            "properties": {
+                "applicants": {
+                    "description": "Number of applicants for the job",
+                    "type": "integer"
+                },
+                "applicationLink": {
+                    "description": "URL where applicants can apply for the job\nrequired: true",
+                    "type": "string"
+                },
+                "appliedAt": {
+                    "description": "Timestamp when the user applied for the job",
+                    "type": "string"
+                },
+                "atsKeywords": {
+                    "description": "Keywords for the application tracking system",
+                    "type": "string"
+                },
+                "contractLength": {
+                    "description": "Duration of the contract, if applicable",
+                    "type": "string"
+                },
+                "coverLetterId": {
+                    "description": "ID referencing the user's cover letter",
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "description": "Automatically sets the creation timestamp",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "educationLevel": {
+                    "description": "Minimum education level required for the job",
+                    "type": "string"
+                },
+                "employmentType": {
+                    "description": "Type of employment (e.g., full-time, part-time)\nrequired: true",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/jobpost.EmploymentType"
+                        }
+                    ]
+                },
+                "hirer": {
+                    "description": "The company or person responsible for hiring",
+                    "type": "string"
+                },
+                "hirerProfileLink": {
+                    "description": "Profile link of the hirer (e.g., LinkedIn, company page)",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "industry": {
+                    "description": "Industry related to the job",
+                    "type": "string"
+                },
+                "isEligible": {
+                    "description": "Whether the user is eligible for the job",
+                    "type": "boolean"
+                },
+                "isRequireUSAPerson": {
+                    "description": "Indicates if the person must be a U.S. citizen or permanent resident",
+                    "type": "boolean"
+                },
+                "isSecurityClearanceRequired": {
+                    "description": "Indicates if security clearance is required",
+                    "type": "boolean"
+                },
+                "isStatusHidden": {
+                    "description": "Flag to indicate if the user wants to hide the job application status",
+                    "type": "boolean"
+                },
+                "jobApplicationStatus": {
+                    "description": "Status of the job application",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/user_job_post.JobApplicationStatus"
+                        }
+                    ]
+                },
+                "jobDescription": {
+                    "description": "Detailed description of the job\nrequired: true",
+                    "type": "string"
+                },
+                "jobId": {
+                    "description": "Unique identifier for the job post\nrequired: true",
+                    "type": "string"
+                },
+                "jobPostId": {
+                    "description": "Foreign key to job_post table",
+                    "type": "integer"
+                },
+                "jobPostedDate": {
+                    "description": "Date when the job was posted\nrequired: true",
+                    "type": "string"
+                },
+                "jobTitle": {
+                    "description": "Title of the job\nrequired: true",
+                    "type": "string"
+                },
+                "jobType": {
+                    "description": "Type of job (e.g., contract, freelance)\nrequired: true",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/jobpost.JobType"
+                        }
+                    ]
+                },
+                "location": {
+                    "description": "Location of the job",
+                    "type": "string"
+                },
+                "minimumExperienceRequired": {
+                    "description": "Minimum experience required for the job",
+                    "type": "integer"
+                },
+                "requiredSkills": {
+                    "description": "Skills required for the job",
+                    "type": "string"
+                },
+                "resumeId": {
+                    "description": "ID referencing the user's resume",
+                    "type": "integer"
+                },
+                "resumeScore": {
+                    "description": "Score given by an ATS for the resume",
+                    "type": "integer"
+                },
+                "salaryRange": {
+                    "description": "Salary range for the job",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "Foreign key to user table",
+                    "type": "integer"
+                },
+                "visaSponsorshipDetails": {
+                    "description": "Visa sponsorship information, if any",
+                    "type": "string"
+                }
+            }
+        },
+        "jobpost.JobType": {
+            "type": "string",
+            "enum": [
+                "On-site",
+                "Remote",
+                "Hybrid"
+            ],
+            "x-enum-varnames": [
+                "OnSite",
+                "Remote",
+                "Hybrid"
+            ]
         },
         "joburl.JobUrl": {
             "type": "object",
@@ -518,6 +1220,25 @@
                     "type": "string"
                 }
             }
+        },
+        "user_job_post.JobApplicationStatus": {
+            "type": "string",
+            "enum": [
+                "Saved",
+                "Applied",
+                "Interview",
+                "Offered",
+                "Rejected",
+                "Withdrawn"
+            ],
+            "x-enum-varnames": [
+                "Saved",
+                "Applied",
+                "Interview",
+                "Offered",
+                "Rejected",
+                "Withdrawn"
+            ]
         }
     }
 }

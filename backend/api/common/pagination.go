@@ -9,11 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// PaginationData represents the paginated data and metadata
+// swagger:response PaginationData
 type PaginationData struct {
 	Data       []interface{} `json:"data"`
 	Pagination `json:"pagination"`
 }
 
+// SaveData saves the provided data into the PaginationData structure
 func (p *PaginationData) SaveData(data []interface{}) {
 	interfaceData := make([]interface{}, len(data))
 	for i, v := range data {
@@ -22,14 +25,30 @@ func (p *PaginationData) SaveData(data []interface{}) {
 	p.Data = interfaceData
 }
 
+// Pagination represents the pagination parameters
+// swagger:parameters Pagination
 type Pagination struct {
-	Page       int    `form:"page,default=1" json:"page"`      // Page number, default is 1
-	Limit      int    `form:"limit,default=10" json:"limit"`   // Number of items per page, default is 10
-	SortBy     string `form:"sortBy,default=id" json:"sortBy"` // Field to sort by, default is "id"
-	Order      string `form:"order,default=asc" json:"order"`  // Sort order (asc or desc), default is "asc"
-	TotalItems int64  `json:"totalItems"`                      // Total number of items
+	// Page number, default is 1
+	// in: query
+	// default: 1
+	Page int `form:"page,default=1" json:"page"`
+	// Number of items per page, default is 10
+	// in: query
+	// default: 10
+	Limit int `form:"limit,default=10" json:"limit"`
+	// Field to sort by, default is "id"
+	// in: query
+	// default: id
+	SortBy string `form:"sortBy,default=id" json:"sortBy"`
+	// Sort order (asc or desc), default is "asc"
+	// in: query
+	// default: asc
+	Order string `form:"order,default=asc" json:"order"`
+	// Total number of items
+	TotalItems int64 `json:"totalItems"`
 }
 
+// Validate validates and sets default values for pagination parameters
 func (p *Pagination) Validate() {
 	if p.Page <= 0 {
 		p.Page = 1
@@ -51,10 +70,12 @@ func (p *Pagination) Validate() {
 	}
 }
 
+// Offset calculates the offset for the database query
 func (p *Pagination) Offset() int {
 	return (p.Page - 1) * p.Limit
 }
 
+// ApplyToDB applies the pagination parameters to the GORM database query
 func (p *Pagination) ApplyToDB(db *gorm.DB) *gorm.DB {
 	p.SortBy = p.toSnakeCase(p.SortBy) // Convert SortBy to snake case for table column names
 	p.Validate()
@@ -78,6 +99,7 @@ func (p *Pagination) ApplyToDB(db *gorm.DB) *gorm.DB {
 	return db
 }
 
+// toSnakeCase converts a string to snake_case
 func (p *Pagination) toSnakeCase(str string) string {
 	var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
 	var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
@@ -87,6 +109,7 @@ func (p *Pagination) toSnakeCase(str string) string {
 	return strings.ToLower(snake)
 }
 
+// ValidateSortBy validates the SortBy field against allowed fields
 func (p *Pagination) ValidateSortBy(allowedSortFields []string) error {
 	p.SortBy = p.toSnakeCase(p.SortBy) // Convert SortBy to snake case for table column names
 	// Convert SortBy value to lowercase for case-insensitive comparison

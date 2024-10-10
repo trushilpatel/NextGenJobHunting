@@ -1,5 +1,43 @@
 basePath: /api/v1
 definitions:
+  common.Pagination:
+    properties:
+      limit:
+        description: |-
+          Number of items per page, default is 10
+          in: query
+          default: 10
+        type: integer
+      order:
+        description: |-
+          Sort order (asc or desc), default is "asc"
+          in: query
+          default: asc
+        type: string
+      page:
+        description: |-
+          Page number, default is 1
+          in: query
+          default: 1
+        type: integer
+      sortBy:
+        description: |-
+          Field to sort by, default is "id"
+          in: query
+          default: id
+        type: string
+      totalItems:
+        description: Total number of items
+        type: integer
+    type: object
+  common.PaginationData:
+    properties:
+      data:
+        items: {}
+        type: array
+      pagination:
+        $ref: '#/definitions/common.Pagination'
+    type: object
   exception.CommonException:
     properties:
       error_details:
@@ -23,6 +61,235 @@ definitions:
           @example "2023-10-09T14:48:00Z"
         type: string
     type: object
+  jobpost.EmploymentType:
+    enum:
+    - Full-time
+    - Part-time
+    - Contract
+    - Internship
+    type: string
+    x-enum-varnames:
+    - FullTime
+    - PartTime
+    - Contract
+    - Internship
+  jobpost.JobPost:
+    properties:
+      applicants:
+        description: Number of applicants for the job
+        type: integer
+      applicationLink:
+        description: |-
+          URL where applicants can apply for the job
+          required: true
+        type: string
+      atsKeywords:
+        description: Keywords for the application tracking system
+        type: string
+      contractLength:
+        description: Duration of the contract, if applicable
+        type: string
+      createdAt:
+        description: Automatically sets the creation timestamp
+        type: string
+      educationLevel:
+        description: Minimum education level required for the job
+        type: string
+      employmentType:
+        allOf:
+        - $ref: '#/definitions/jobpost.EmploymentType'
+        description: |-
+          Type of employment (e.g., full-time, part-time)
+          required: true
+      hirer:
+        description: The company or person responsible for hiring
+        type: string
+      hirerProfileLink:
+        description: Profile link of the hirer (e.g., LinkedIn, company page)
+        type: string
+      id:
+        type: integer
+      industry:
+        description: Industry related to the job
+        type: string
+      isRequireUSAPerson:
+        description: Indicates if the person must be a U.S. citizen or permanent resident
+        type: boolean
+      isSecurityClearanceRequired:
+        description: Indicates if security clearance is required
+        type: boolean
+      jobDescription:
+        description: |-
+          Detailed description of the job
+          required: true
+        type: string
+      jobId:
+        description: |-
+          Unique identifier for the job post
+          required: true
+        type: string
+      jobPostedDate:
+        description: |-
+          Date when the job was posted
+          required: true
+        type: string
+      jobTitle:
+        description: |-
+          Title of the job
+          required: true
+        type: string
+      jobType:
+        allOf:
+        - $ref: '#/definitions/jobpost.JobType'
+        description: |-
+          Type of job (e.g., contract, freelance)
+          required: true
+      location:
+        description: Location of the job
+        type: string
+      minimumExperienceRequired:
+        description: Minimum experience required for the job
+        type: integer
+      requiredSkills:
+        description: Skills required for the job
+        type: string
+      salaryRange:
+        description: Salary range for the job
+        type: string
+      visaSponsorshipDetails:
+        description: Visa sponsorship information, if any
+        type: string
+    type: object
+  jobpost.JobPostUserJobPostDto:
+    properties:
+      applicants:
+        description: Number of applicants for the job
+        type: integer
+      applicationLink:
+        description: |-
+          URL where applicants can apply for the job
+          required: true
+        type: string
+      appliedAt:
+        description: Timestamp when the user applied for the job
+        type: string
+      atsKeywords:
+        description: Keywords for the application tracking system
+        type: string
+      contractLength:
+        description: Duration of the contract, if applicable
+        type: string
+      coverLetterId:
+        description: ID referencing the user's cover letter
+        type: integer
+      created_at:
+        type: string
+      createdAt:
+        description: Automatically sets the creation timestamp
+        type: string
+      educationLevel:
+        description: Minimum education level required for the job
+        type: string
+      employmentType:
+        allOf:
+        - $ref: '#/definitions/jobpost.EmploymentType'
+        description: |-
+          Type of employment (e.g., full-time, part-time)
+          required: true
+      hirer:
+        description: The company or person responsible for hiring
+        type: string
+      hirerProfileLink:
+        description: Profile link of the hirer (e.g., LinkedIn, company page)
+        type: string
+      id:
+        type: integer
+      industry:
+        description: Industry related to the job
+        type: string
+      isEligible:
+        description: Whether the user is eligible for the job
+        type: boolean
+      isRequireUSAPerson:
+        description: Indicates if the person must be a U.S. citizen or permanent resident
+        type: boolean
+      isSecurityClearanceRequired:
+        description: Indicates if security clearance is required
+        type: boolean
+      isStatusHidden:
+        description: Flag to indicate if the user wants to hide the job application
+          status
+        type: boolean
+      jobApplicationStatus:
+        allOf:
+        - $ref: '#/definitions/user_job_post.JobApplicationStatus'
+        description: Status of the job application
+      jobDescription:
+        description: |-
+          Detailed description of the job
+          required: true
+        type: string
+      jobId:
+        description: |-
+          Unique identifier for the job post
+          required: true
+        type: string
+      jobPostId:
+        description: Foreign key to job_post table
+        type: integer
+      jobPostedDate:
+        description: |-
+          Date when the job was posted
+          required: true
+        type: string
+      jobTitle:
+        description: |-
+          Title of the job
+          required: true
+        type: string
+      jobType:
+        allOf:
+        - $ref: '#/definitions/jobpost.JobType'
+        description: |-
+          Type of job (e.g., contract, freelance)
+          required: true
+      location:
+        description: Location of the job
+        type: string
+      minimumExperienceRequired:
+        description: Minimum experience required for the job
+        type: integer
+      requiredSkills:
+        description: Skills required for the job
+        type: string
+      resumeId:
+        description: ID referencing the user's resume
+        type: integer
+      resumeScore:
+        description: Score given by an ATS for the resume
+        type: integer
+      salaryRange:
+        description: Salary range for the job
+        type: string
+      updated_at:
+        type: string
+      userId:
+        description: Foreign key to user table
+        type: integer
+      visaSponsorshipDetails:
+        description: Visa sponsorship information, if any
+        type: string
+    type: object
+  jobpost.JobType:
+    enum:
+    - On-site
+    - Remote
+    - Hybrid
+    type: string
+    x-enum-varnames:
+    - OnSite
+    - Remote
+    - Hybrid
   joburl.JobUrl:
     properties:
       created_at:
@@ -62,6 +329,22 @@ definitions:
       username:
         type: string
     type: object
+  user_job_post.JobApplicationStatus:
+    enum:
+    - Saved
+    - Applied
+    - Interview
+    - Offered
+    - Rejected
+    - Withdrawn
+    type: string
+    x-enum-varnames:
+    - Saved
+    - Applied
+    - Interview
+    - Offered
+    - Rejected
+    - Withdrawn
 host: localhost:8080
 info:
   contact: {}
@@ -71,6 +354,271 @@ info:
   title: Next Gen Job Hunting API
   version: "1.0"
 paths:
+  /jobposts:
+    get:
+      description: Get all job posts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/jobpost.JobPost'
+            type: array
+        "500":
+          description: Failed to retrieve job posts
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Get all job posts
+      tags:
+      - jobpost
+    post:
+      consumes:
+      - application/json
+      description: Create a new job post
+      parameters:
+      - description: Job Post
+        in: body
+        name: jobPost
+        required: true
+        schema:
+          $ref: '#/definitions/jobpost.JobPost'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/jobpost.JobPost'
+        "400":
+          description: Invalid request payload
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Failed to create job post
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Create a job post
+      tags:
+      - jobpost
+    put:
+      consumes:
+      - application/json
+      description: Update an existing job post
+      parameters:
+      - description: Job Post
+        in: body
+        name: jobPost
+        required: true
+        schema:
+          $ref: '#/definitions/jobpost.JobPost'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jobpost.JobPost'
+        "400":
+          description: Invalid request payload
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Failed to update job post
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Update a job post
+      tags:
+      - jobpost
+  /jobposts/{id}:
+    delete:
+      description: Delete a job post by ID
+      parameters:
+      - description: Job Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Failed to delete job post
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Delete a job post
+      tags:
+      - jobpost
+    get:
+      description: Get a job post by its ID
+      parameters:
+      - description: Job Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jobpost.JobPost'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "404":
+          description: Job post not found
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Get a job post by ID
+      tags:
+      - jobpost
+  /jobposts/search:
+    get:
+      description: Search job posts based on query parameters
+      parameters:
+      - description: Hirer name for filtering
+        in: query
+        name: hirer
+        type: string
+      - description: Eligibility flag
+        in: query
+        name: isEligible
+        type: boolean
+      - description: USA person requirement flag
+        in: query
+        name: isRequireUSAPerson
+        type: boolean
+      - description: Job application status filter
+        enum:
+        - Saved
+        - Applied
+        - Interview
+        - Offered
+        - Rejected
+        - Withdrawn
+        in: query
+        name: jobApplicationStatus
+        type: string
+        x-enum-varnames:
+        - Saved
+        - Applied
+        - Interview
+        - Offered
+        - Rejected
+        - Withdrawn
+      - description: JobPost ID for filtering
+        in: query
+        name: jobPostId
+        type: integer
+      - description: |-
+          Number of items per page, default is 10
+          in: query
+          default: 10
+        in: query
+        name: limit
+        type: integer
+      - description: Job location filter
+        in: query
+        name: location
+        type: string
+      - description: |-
+          Sort order (asc or desc), default is "asc"
+          in: query
+          default: asc
+        in: query
+        name: order
+        type: string
+      - description: |-
+          Page number, default is 1
+          in: query
+          default: 1
+        in: query
+        name: page
+        type: integer
+      - description: |-
+          Field to sort by, default is "id"
+          in: query
+          default: id
+        in: query
+        name: sortBy
+        type: string
+      - description: Total number of items
+        in: query
+        name: totalItems
+        type: integer
+      - description: User ID for filtering
+        in: query
+        name: userId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.PaginationData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/jobpost.JobPost'
+                  type: array
+              type: object
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Failed to search job posts
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Search job posts
+      tags:
+      - jobpost
+  /jobposts/status:
+    put:
+      consumes:
+      - application/json
+      description: Update the status of a job post
+      parameters:
+      - description: Update Job Post Status
+        in: body
+        name: updateUserJobPostDto
+        required: true
+        schema:
+          $ref: '#/definitions/jobpost.JobPostUserJobPostDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jobpost.JobPostUserJobPostDto'
+        "400":
+          description: Invalid request payload
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+        "500":
+          description: Failed to update job post status
+          schema:
+            $ref: '#/definitions/exception.CommonException'
+      summary: Update job post status
+      tags:
+      - jobpost
   /joburl:
     get:
       description: Get all job URLs
