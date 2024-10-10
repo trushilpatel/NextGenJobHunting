@@ -40,12 +40,17 @@ class CrawledJobService:
                 raise ValueError(
                     f"Environment variable {var_name} is missing or empty."
                 )
-
+    
     def add_crawled_job(self, job_id, job_data, platform_url, status="new"):
-        new_job = crawled_job.CrawledJob(
-            job_id=job_id, job_data=job_data, platform_url=platform_url, status=status
-        )
-        self.session.add(new_job)
-        self.session.commit()
-        print(f"Job {job_id} added successfully.")
-        self.session.close()
+        try:
+            new_job = crawled_job.CrawledJob(
+                job_id=job_id, job_data=job_data, platform_url=platform_url, status=status
+            )
+            self.session.add(new_job)
+            self.session.commit()
+            print(f"Job {job_id} added successfully.")
+        except Exception as e:
+            self.session.rollback()
+            print(f"Failed to add job {job_id}. Error: {e}")
+        finally:
+            self.session.close()

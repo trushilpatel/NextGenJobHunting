@@ -65,3 +65,9 @@ alembic upgrade head
 ```
 
 This command will apply all pending migrations to your database.
+
+#### Downgrade Alembic
+
+```sh
+alembic downgrade {version_name}
+```
