@@ -3,23 +3,30 @@
 include ./.env
 export $(shell sed 's/=.*//' ./.env)
 
+.PHONY: print-db-config kill-port
 print-db-config:
 	@echo "Database Host: $(DB_HOST)"
 	@echo "Database Port: $(DB_PORT)"
 	@echo "Database Username: $(DB_USERNAME)"
 	@echo "Database Name: $(DB_NAME)"
 
+.PHONY: kill-port
 kill-port:
 	@pid=$$(lsof -t -i:${PORT:=8080}) && if [ -n "$$pid" ]; then kill -9 $$pid; fi
 
-##### Docker #####
+##### Docker Commands #####
+.PHONY: build-docker dev-db
+
 build-docker:
 	cd ./infra && docker-compose -f docker-compose.yml build
 
 dev-db:
 	cd ./infra && docker-compose -f docker-compose.yml up -d
 
-##### Backend #####
+
+##### Backend Commands #####
+.PHONY: build-backend run-backend dev-backend
+
 build-backend:
 	cd ./backend && wire ./di
 	cd ./backend && go build -o ./next-gen-job-hunting .
@@ -30,21 +37,28 @@ run-backend:
 dev-backend:
 	cd ./backend && air --build.cmd "make kill-port && make build-backend" --build.bin "./next-gen-job-hunting" --build.exclude_dir "tmp" --build.exclude_file "./di/wire_gen.go,*di/*"
 
-##### Crawler #####
 
-.PHONY: run-chrome
+##### Crawler Commands #####
+.PHONY: crawler-run-chrome crawler-venv crawler-clean install-crawler crawler-run
 
+# Run Chrome with debugging options based on the OS
 crawler-run-chrome:
-	@echo "Detected OS: $$(uname -s | xargs)"
-	@if [ "$$(uname -s | xargs)" = "Linux" ]; then \
-		echo "Running Chrome on Linux..."; \
-		google-chrome --remote-debugging-port=9222 --user-data-dir="$$(echo ~)/chrome-debug-session"; \
-	elif [ "$$(uname -s | xargs)" = "Darwin" ]; then \
-		echo "Running Chrome on macOS..."; \
-		/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir="$$(echo ~)/chrome-debug-session"; \
-	elif [ "$$(uname -s | xargs)" = "Windows" ]; then \
-		echo "Running Chrome on Windows..."; \
-		"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="$$(echo %USERPROFILE%)/chrome-debug-session"; \
-	else \
-		echo "Unsupported OS: $$(uname -s | xargs)"; \
-	fi
+	@echo "Chrome to maintain a debugging session..."
+	make -C crawler run-chrome
+
+crawler-setup:
+	@echo "Setting Up Crawler Virtual Environment and Installing libraries..."
+	make -C crawler install
+
+crawler-clean:
+	@echo "Removing virtual environment..."
+	make -C crawler clean
+
+
+install-crawler:
+	@echo "Installing crawler dependencies..."
+	make -C crawler install
+
+crawler-run:
+	@echo "Running LinkedIn crawler from the main folder..."
+	make -C crawler run

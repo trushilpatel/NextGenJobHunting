@@ -11,12 +11,18 @@ from itertools import product
 import logging
 
 from services.crawled_job_service import CrawledJobService
+import os
 
 logger = logging.getLogger(__name__)
+# Set up logging
+log_directory = os.path.join(os.getcwd(), "logs")
+os.makedirs(log_directory, exist_ok=True)
+log_file = os.path.join(log_directory, "linkedin.log")
+
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    filename="/Users/trushil/Documents/Projects/LinkedIn Bot/logs/myapp.log",
+    filename=log_file,
     level=logging.INFO,
 )
 
@@ -160,8 +166,8 @@ class LinkedinEasyApply:
             job_results = self.browser.find_element(
                 By.CLASS_NAME, "jobs-search-results-list"
             )
-            # self.scroll_slow(job_results)
-            # self.scroll_slow(job_results, step=300, reverse=True)
+            self.scroll_slow(job_results)
+            self.scroll_slow(job_results, step=300, reverse=True)
 
             job_list = self.browser.find_elements(
                 By.CLASS_NAME, "scaffold-layout__list-container"
@@ -218,18 +224,20 @@ class LinkedinEasyApply:
                 except StaleElementReferenceException:
                     retries += 1
                     continue
+                except Exception as e:
+                    break
 
-            time.sleep(random.uniform(3, 5))
+            time.sleep(random.uniform(5, 10))
 
             try:
                 # scroll job details to the bottom and the to the up
-                # self.scroll_element("jobs-search__job-details--container", end=1600)
-                # self.scroll_element(
-                #     "jobs-search__job-details--container",
-                #     end=1600,
-                #     step=400,
-                #     reverse=True,
-                # )
+                self.scroll_element("jobs-search__job-details--container", end=1600)
+                self.scroll_element(
+                    "jobs-search__job-details--container",
+                    end=1600,
+                    step=400,
+                    reverse=True,
+                )
 
                 # Get the current website's base URL
                 current_url = self.browser.current_url

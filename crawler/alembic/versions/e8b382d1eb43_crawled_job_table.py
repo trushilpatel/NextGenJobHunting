@@ -35,7 +35,7 @@ def upgrade() -> None:
     op.create_table(
         "crawled_job",
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
-        sa.Column("job_id", sa.String(length=255), nullable=False),
+        sa.Column("job_id", sa.String(length=255), nullable=True, unique=True),
         sa.Column("job_data", sa.Text(), nullable=False),
         sa.Column("platform_url", sa.String(length=255), nullable=False),
         sa.Column("status", status_enum, nullable=False, server_default="new"),

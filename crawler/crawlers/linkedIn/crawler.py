@@ -47,7 +47,7 @@ def validate_yaml():
     print("Current working directory:", os.getcwd())
 
     with open(
-        os.path.join(os.getcwd(), "crawler", "crawlers", "linkedIn", "config.yaml"),
+        os.path.join(os.getcwd(), "crawlers", "linkedIn", "config.yaml"),
         "r",
     ) as stream:
         try:
