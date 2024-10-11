@@ -171,21 +171,12 @@ class LinkedinEasyApply:
             raise Exception("No more jobs on this page.")
 
         for job_tile_element in job_list:
-            link = ""
-            job_id = None
-            try:
-                link = (
-                    job_tile_element.find_element(By.CLASS_NAME, "job-card-list__title")
-                    .get_attribute("href")
-                    .split("?")[0]
-                )
-                try:
-                    job_id = int(link.rstrip("/").split("/")[-1])
-                except ValueError:
-                    logger.error(f"Invalid job ID in link: {link}")
-                    continue
-            except:
-                pass
+            link, job_id = self.extract_link_and_job_id(job_tile_element)
+
+            if not link or not job_id or job_id.strip() == "":
+                continue
+            if self.is_job_with_id_already_seen(job_id):
+                continue
 
             max_retries = 3
             retries = 0
@@ -206,10 +197,6 @@ class LinkedinEasyApply:
                 # scroll job details to the bottom and the to the up
                 self.scroll_element("jobs-search__job-details--container", step=800)
                 self.scroll_element("jobs-search__job-details--container" ,step=800, reverse=True)
-
-                # Get the current website's base URL
-                current_url = self.browser.current_url
-                base_url = "{0.scheme}://{0.netloc}".format(urlparse(current_url))
 
                 jobdetails = self.get_job_details()
 
@@ -348,7 +335,7 @@ class LinkedinEasyApply:
         try:
             link_element = job_tile_element.find_element(By.CLASS_NAME, "job-card-list__title")
             link = link_element.get_attribute("href").split("?")[0]
-            job_id = int(link.rstrip("/").split("/")[-1])
+            job_id = str(link.rstrip("/").split("/")[-1])
         except (ValueError, Exception) as e:
             logger.error(f"Error extracting link and job ID: {e}")
 
@@ -372,3 +359,11 @@ class LinkedinEasyApply:
             job_details[key] = self.get_inner_text(selector, by)
 
         return job_details
+
+    def is_job_with_id_already_seen(self, job_id):
+        job_id = str(job_id).strip()
+        data = self.crawled_job_service.get_crawled_job_by_id(job_id)
+        if data != None:
+            logger.info(f"Job {job_id} already exists in the database.")
+            return False
+        return True
