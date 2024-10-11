@@ -111,10 +111,10 @@ class LinkedinEasyApply:
 
                     time_left = minimum_page_time - time.time()
                     if time_left > 0:
-                        self.sleep_for_random_interval(time_left, time_left + 1)
+                        self.sleep_for_random_interval(time_left, time_left + 1, True)
                         minimum_page_time = time.time() + minimum_time
                     if page_sleep % 5 == 0:
-                        self.sleep_for_random_interval(400, 700)
+                        self.sleep_for_random_interval(400, 700, True)
                         page_sleep += 1
             except:
                 traceback.print_exc()
@@ -122,10 +122,10 @@ class LinkedinEasyApply:
 
             time_left = minimum_page_time - time.time()
             if time_left > 0:
-                self.sleep_for_random_interval(time_left, time_left + 1)
+                self.sleep_for_random_interval(time_left, time_left + 1, True)
                 minimum_page_time = time.time() + minimum_time
             if page_sleep % 5 == 0:
-                self.sleep_for_random_interval(400, 700)
+                self.sleep_for_random_interval(400, 700, True)
                 page_sleep += 1
 
 
@@ -195,8 +195,8 @@ class LinkedinEasyApply:
 
             try:
                 # scroll job details to the bottom and the to the up
-                self.scroll_element("jobs-search__job-details--container", step=800)
-                self.scroll_element("jobs-search__job-details--container" ,step=800, reverse=True)
+                self.scroll_element("jobs-search__job-details--container", step=300)
+                self.scroll_element("jobs-search__job-details--container" ,step=300, reverse=True)
 
                 jobdetails = self.get_job_details()
 
@@ -212,7 +212,7 @@ class LinkedinEasyApply:
 
             self.seen_jobs += link
 
-    def scroll_element(self, element_name, end=1600, step=100, reverse=False):
+    def scroll_element(self, element_name, end=3600, step=300, reverse=False):
         try:
             element = self.browser.find_element(By.CLASS_NAME, element_name)
             self.scroll_slow(element, end=end, step=step, reverse=reverse)
@@ -220,7 +220,7 @@ class LinkedinEasyApply:
             logger.error(f"Error scrolling element {element_name}: {e}")
             pass
 
-    def scroll_slow(self, scrollable_element, start=0, end=3600, step=100, reverse=False):
+    def scroll_slow(self, scrollable_element, start=0, end=3600, step=300, reverse=False):
         if reverse:
             start, end = end, start
             step = -step
@@ -231,9 +231,10 @@ class LinkedinEasyApply:
             )
             self.sleep_for_random_interval(1.0, 2.6)
 
-    def sleep_for_random_interval(lower_limit, upper_limit):
+    def sleep_for_random_interval(self, lower_limit, upper_limit, log=False):
         sleep_time = random.uniform(lower_limit, upper_limit)
-        logger.info(f"Sleeping for {sleep_time:.2f} seconds.")
+        if log:
+            logger.info(f"Sleeping for {sleep_time:.2f} seconds.")
         time.sleep(sleep_time)
 
 
@@ -365,5 +366,5 @@ class LinkedinEasyApply:
         data = self.crawled_job_service.get_crawled_job_by_id(job_id)
         if data != None:
             logger.info(f"Job {job_id} already exists in the database.")
-            return False
-        return True
+            return True
+        return False

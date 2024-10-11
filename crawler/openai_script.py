@@ -5,11 +5,11 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import json
-from pydantic import BaseModel, HttpUrl, constr, conint
+from pydantic import BaseModel
 
 # Enums for EmploymentType and JobType
 from enum import Enum
-from sqlalchemy import create_engine, Column, String, Integer, Enum as SqlEnum, DateTime, Boolean
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from crawler.models.base import Base
