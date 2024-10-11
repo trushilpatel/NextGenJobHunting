@@ -1,8 +1,22 @@
+import logging
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from models import crawled_job
+
+logger = logging.getLogger(__name__)
+# Set up logging
+log_directory = os.path.join(os.getcwd(), "logs")
+os.makedirs(log_directory, exist_ok=True)
+log_file = os.path.join(log_directory, "linkedin.log")
+
+logging.basicConfig(
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    filename=log_file,
+    level=logging.INFO,
+)
 
 
 class CrawledJobService:
@@ -48,9 +62,9 @@ class CrawledJobService:
             )
             self.session.add(new_job)
             self.session.commit()
-            print(f"Job {job_id} added successfully.")
+            logger.info(f"Job {job_id} added successfully.")
         except Exception as e:
             self.session.rollback()
-            print(f"Failed to add job {job_id}. Error: {e}")
+            logger.error(f"Failed to add job {job_id}. Error: {e}")
         finally:
             self.session.close()

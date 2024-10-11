@@ -115,11 +115,9 @@ class LinkedinEasyApply:
                         minimum_page_time = time.time() + minimum_time
                     if page_sleep % 5 == 0:
                         sleep_time = random.randint(
-                            120, 180
+                            60, 90
                         )  # Changed from 500, 900 {seconds}
-                        logger.info(
-                            "Sleeping for " + str(sleep_time / 60) + " minutes."
-                        )
+                        logger.info("Sleeping for " + str(sleep_time / 60) + " minutes.")
                         time.sleep(sleep_time)
                         page_sleep += 1
             except:
@@ -242,7 +240,6 @@ class LinkedinEasyApply:
                 # Get the current website's base URL
                 current_url = self.browser.current_url
                 base_url = "{0.scheme}://{0.netloc}".format(urlparse(current_url))
-                logger.info(f"Current base URL: {base_url}")
 
                 jobdetails = self.get_job_details()
 
@@ -265,41 +262,6 @@ class LinkedinEasyApply:
         except Exception as e:
             logger.error(f"Error scrolling element {element_name}: {e}")
             pass
-
-    # def get_job_details(self):
-    #     all_job_details = self.browser.find_element(By.CLASS_NAME, 'jobs-search__job-details--wrapper')
-    #     all_job_details_text = all_job_details.get_attribute('innerText').strip()
-
-    #     company_name = self.browser.find_element(By.CLASS_NAME, 'job-details-jobs-unified-top-card__company-name').text
-
-    #     # San Francisco Bay Area · 16 hours ago · Over 100 applicants
-    #     primary_description = self.browser.find_element(By.CLASS_NAME, 'job-details-jobs-unified-top-card__primary-description-container')
-    #     primary_description_text = primary_description.get_attribute('innerText').strip()
-
-    #     hirer_name = self.browser.find_element(By.CLASS_NAME, 'hirer-card__hirer-information')
-    #     hirer_name_text = hirer_name.get_attribute('innerText').strip()
-
-    #     hirer_link_element = self.browser.find_element(By.CSS_SELECTOR, 'div.hirer-card__hirer-information a.app-aware-link')
-    #     linkedin_profile_link = hirer_link_element.get_attribute('href')
-
-    #     # HybridMatches your job preferences, workplace type is Hybrid.  Full-timeMatches your job preferences, job type is Full-time.  Mid-Senior level
-    #     # one way to get details is go through all child and collect text in list
-    #     job_insight = self.browser.find_element(By.CLASS_NAME, 'job-details-jobs-unified-top-card__job-insight')
-    #     job_insight_text = job_insight.get_attribute('innerText').strip()
-
-    #     # one way to get details is go through all child and collect text in list
-    #     job_description = self.browser.find_element(By.CLASS_NAME, 'jobs-description-content__text')
-    #     job_description_text = job_description.get_attribute('innerText').strip()
-
-    #     # one way to get details is go through all child and collect text in list
-    #     company_description = self.browser.find_element(By.CLASS_NAME, 'jobs-company__company-description')
-    #     company_description_text =company_description.get_attribute('innerText').strip()
-
-    #     # one way to get details is go through all child and collect text in list
-    #     applicants = self.browser.find_element(By.CSS_SELECTOR, 'div[data-view-name="premium-job-applicant-insights"]')
-    #     applicants_text = applicants.get_attribute('innerText').strip()
-
-    #     print(all_job_details_text)
 
     def scroll_slow(
         self, scrollable_element, start=0, end=3600, step=100, reverse=False
