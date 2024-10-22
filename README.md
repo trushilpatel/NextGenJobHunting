@@ -1,6 +1,6 @@
 # NextGenJobHunting
 
-Automating resume and cover letter generation, allowing users to easily tailor their applications to specific job opportunities while highlighting their unique skills and experiences.
+Automating a personalized job listing and application monitoring system, enabling users to track the status of their applications while highlighting their unique skills and experiences.
 
 ## Next-Gen Job Hunting Backend Setup
 
