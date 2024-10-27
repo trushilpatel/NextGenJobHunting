@@ -165,7 +165,7 @@ def run_linkedin_crawler():
     bot = LinkedinEasyApply(parameters, browser)
     bot.login()
     bot.security_check()
-    bot.start_applying()
+    bot.start_crawling()
 
 
 if __name__ == "__main__":

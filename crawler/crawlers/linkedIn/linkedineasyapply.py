@@ -11,6 +11,7 @@ from itertools import product
 import logging
 
 from services.crawled_job_service import CrawledJobService
+from services.crawled_kakfa_service import CrawledKafkaService
 import os
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,7 @@ logging.basicConfig(
 
 class LinkedinEasyApply:
     def __init__(self, parameters, driver):
+        self.crawled_kafka_service = CrawledKafkaService()
         self.crawled_job_service = CrawledJobService()
         self.browser = driver
         self.email = parameters["email"]
@@ -63,11 +65,11 @@ class LinkedinEasyApply:
     def login(self):
         try:
             self.browser.get("https://www.linkedin.com")
-            time.sleep(random.uniform(5, 10))
+            self.sleep_for_random_interval(5, 10)
             # self.browser.find_element(By.ID, "username").send_keys(self.email)
             # self.browser.find_element(By.ID, "password").send_keys(self.password)
             # self.browser.find_element(By.CSS_SELECTOR, ".btn__primary--large").click()
-            time.sleep(random.uniform(5, 10))
+            self.sleep_for_random_interval(5, 10)
         except TimeoutException:
             raise Exception("Could not login!")
 
@@ -79,9 +81,9 @@ class LinkedinEasyApply:
             input(
                 "Please complete the security check and press enter on this console when it is done."
             )
-            time.sleep(random.uniform(5.5, 10.5))
+            self.sleep_for_random_interval(5.5, 10.5)
 
-    def start_applying(self):
+    def start_crawling(self):
         searches = list(product(self.positions, self.locations))
         random.shuffle(searches)
 
@@ -101,26 +103,20 @@ class LinkedinEasyApply:
                     job_page_number += 1
                     logger.info("Going to job page " + str(job_page_number))
                     self.next_job_page(position, location_url, job_page_number)
-                    time.sleep(random.uniform(1.5, 3.5))
-                    logger.info("Starting the application process for this page...")
-                    self.apply_jobs(location)
+                    self.sleep_for_random_interval(1.5, 3.5)
+
+                    logger.info("Starting the crawling process for this page...")
+                    self.crawl_jobs(location)
                     logger.info(
-                        "Job applications on this page have been successfully completed."
+                        "Job crawling on this page have been successfully completed."
                     )
 
                     time_left = minimum_page_time - time.time()
                     if time_left > 0:
-                        logger.info("Sleeping for " + str(time_left) + " seconds.")
-                        time.sleep(time_left)
+                        self.sleep_for_random_interval(time_left, time_left + 1, True)
                         minimum_page_time = time.time() + minimum_time
                     if page_sleep % 5 == 0:
-                        sleep_time = random.randint(
-                            120, 180
-                        )  # Changed from 500, 900 {seconds}
-                        logger.info(
-                            "Sleeping for " + str(sleep_time / 60) + " minutes."
-                        )
-                        time.sleep(sleep_time)
+                        self.sleep_for_random_interval(400, 700, True)
                         page_sleep += 1
             except:
                 traceback.print_exc()
@@ -128,16 +124,15 @@ class LinkedinEasyApply:
 
             time_left = minimum_page_time - time.time()
             if time_left > 0:
-                logger.info("Sleeping for " + str(time_left) + " seconds.")
-                time.sleep(time_left)
+                self.sleep_for_random_interval(time_left, time_left + 1, True)
                 minimum_page_time = time.time() + minimum_time
             if page_sleep % 5 == 0:
-                sleep_time = random.randint(500, 900)
-                logger.info("Sleeping for " + str(sleep_time / 60) + " minutes.")
-                time.sleep(sleep_time)
+                self.sleep_for_random_interval(400, 700, True)
                 page_sleep += 1
 
-    def apply_jobs(self, location):
+
+
+    def crawl_jobs(self, location):
         no_jobs_text = ""
         try:
             no_jobs_element = self.browser.find_element(
@@ -163,11 +158,7 @@ class LinkedinEasyApply:
             raise Exception("Nothing to do here, moving forward...")
 
         try:
-            job_results = self.browser.find_element(
-                By.CLASS_NAME, "jobs-search-results-list"
-            )
-            self.scroll_slow(job_results)
-            self.scroll_slow(job_results, step=300, reverse=True)
+            self.scroll_element("jobs-search-results-list", step=300, reverse=True)
 
             job_list = self.browser.find_elements(
                 By.CLASS_NAME, "scaffold-layout__list-container"
@@ -181,44 +172,19 @@ class LinkedinEasyApply:
         if len(job_list) == 0:
             raise Exception("No more jobs on this page.")
 
-        for job_tile in job_list:
-            job_title, company, link = ("", "", "")
+        for job_tile_element in job_list:
+            link, job_id = self.extract_link_and_job_id(job_tile_element)
 
-            try:
-                # patch to incorporate new 'verification' crap by LinkedIn
-                # job_title = job_tile.find_element(By.CLASS_NAME, 'job-card-list__title').text # original code
-                job_title_element = job_tile.find_element(
-                    By.CLASS_NAME, "job-card-list__title"
-                )
-                job_title = job_title_element.find_element(By.TAG_NAME, "strong").text
-
-                link = (
-                    job_tile.find_element(By.CLASS_NAME, "job-card-list__title")
-                    .get_attribute("href")
-                    .split("?")[0]
-                )
-                job_id = None
-                try:
-                    job_id = int(link.rstrip("/").split("/")[-1])
-                except ValueError:
-                    logger.error(f"Invalid job ID in link: {link}")
-                    continue
-            except:
-                pass
-            try:
-                company = job_tile.find_element(
-                    By.CLASS_NAME, "job-card-container__primary-description"
-                ).text
-            except:
-                pass
+            if not link or not job_id or job_id.strip() == "":
+                continue
+            if self.is_job_with_id_already_seen(job_id):
+                continue
 
             max_retries = 3
             retries = 0
             while retries < max_retries:
                 try:
-                    job_el = job_tile.find_element(
-                        By.CLASS_NAME, "job-card-list__title"
-                    )
+                    job_el = job_tile_element.find_element(By.CLASS_NAME, "job-card-list__title")
                     job_el.click()
                     break
                 except StaleElementReferenceException:
@@ -227,22 +193,12 @@ class LinkedinEasyApply:
                 except Exception as e:
                     break
 
-            time.sleep(random.uniform(5, 10))
+            self.sleep_for_random_interval(5, 10)
 
             try:
                 # scroll job details to the bottom and the to the up
-                self.scroll_element("jobs-search__job-details--container", end=1600)
-                self.scroll_element(
-                    "jobs-search__job-details--container",
-                    end=1600,
-                    step=400,
-                    reverse=True,
-                )
-
-                # Get the current website's base URL
-                current_url = self.browser.current_url
-                base_url = "{0.scheme}://{0.netloc}".format(urlparse(current_url))
-                logger.info(f"Current base URL: {base_url}")
+                self.scroll_element("jobs-search__job-details--container", step=300)
+                self.scroll_element("jobs-search__job-details--container" ,step=300, reverse=True)
 
                 jobdetails = self.get_job_details()
 
@@ -251,14 +207,17 @@ class LinkedinEasyApply:
                     job_data=str(jobdetails),
                     platform_url=link,
                 )
+                self.crawled_kafka_service.send_crawled_job(
+                 {job_id: jobdetails, "job_posting_url": link, "data": jobdetails}
+                )
             except Exception as e:
                 logger.info(e)
-                logger.info(f"Could not apply to the job in {company}")
+                logger.info(f"Could not apply to the job Link: {link}")
                 traceback.print_exc()
 
             self.seen_jobs += link
 
-    def scroll_element(self, element_name, end=1600, step=100, reverse=False):
+    def scroll_element(self, element_name, end=3600, step=300, reverse=False):
         try:
             element = self.browser.find_element(By.CLASS_NAME, element_name)
             self.scroll_slow(element, end=end, step=step, reverse=reverse)
@@ -266,44 +225,7 @@ class LinkedinEasyApply:
             logger.error(f"Error scrolling element {element_name}: {e}")
             pass
 
-    # def get_job_details(self):
-    #     all_job_details = self.browser.find_element(By.CLASS_NAME, 'jobs-search__job-details--wrapper')
-    #     all_job_details_text = all_job_details.get_attribute('innerText').strip()
-
-    #     company_name = self.browser.find_element(By.CLASS_NAME, 'job-details-jobs-unified-top-card__company-name').text
-
-    #     # San Francisco Bay Area · 16 hours ago · Over 100 applicants
-    #     primary_description = self.browser.find_element(By.CLASS_NAME, 'job-details-jobs-unified-top-card__primary-description-container')
-    #     primary_description_text = primary_description.get_attribute('innerText').strip()
-
-    #     hirer_name = self.browser.find_element(By.CLASS_NAME, 'hirer-card__hirer-information')
-    #     hirer_name_text = hirer_name.get_attribute('innerText').strip()
-
-    #     hirer_link_element = self.browser.find_element(By.CSS_SELECTOR, 'div.hirer-card__hirer-information a.app-aware-link')
-    #     linkedin_profile_link = hirer_link_element.get_attribute('href')
-
-    #     # HybridMatches your job preferences, workplace type is Hybrid.  Full-timeMatches your job preferences, job type is Full-time.  Mid-Senior level
-    #     # one way to get details is go through all child and collect text in list
-    #     job_insight = self.browser.find_element(By.CLASS_NAME, 'job-details-jobs-unified-top-card__job-insight')
-    #     job_insight_text = job_insight.get_attribute('innerText').strip()
-
-    #     # one way to get details is go through all child and collect text in list
-    #     job_description = self.browser.find_element(By.CLASS_NAME, 'jobs-description-content__text')
-    #     job_description_text = job_description.get_attribute('innerText').strip()
-
-    #     # one way to get details is go through all child and collect text in list
-    #     company_description = self.browser.find_element(By.CLASS_NAME, 'jobs-company__company-description')
-    #     company_description_text =company_description.get_attribute('innerText').strip()
-
-    #     # one way to get details is go through all child and collect text in list
-    #     applicants = self.browser.find_element(By.CSS_SELECTOR, 'div[data-view-name="premium-job-applicant-insights"]')
-    #     applicants_text = applicants.get_attribute('innerText').strip()
-
-    #     print(all_job_details_text)
-
-    def scroll_slow(
-        self, scrollable_element, start=0, end=3600, step=100, reverse=False
-    ):
+    def scroll_slow(self, scrollable_element, start=0, end=3600, step=300, reverse=False):
         if reverse:
             start, end = end, start
             step = -step
@@ -312,7 +234,14 @@ class LinkedinEasyApply:
             self.browser.execute_script(
                 "arguments[0].scrollTo(0, {})".format(i), scrollable_element
             )
-            time.sleep(random.uniform(1.0, 2.6))
+            self.sleep_for_random_interval(1.0, 2.6)
+
+    def sleep_for_random_interval(self, lower_limit, upper_limit, log=False):
+        sleep_time = random.uniform(lower_limit, upper_limit)
+        if log:
+            logger.info(f"Sleeping for {sleep_time:.2f} seconds.")
+        time.sleep(sleep_time)
+
 
     def avoid_lock(self):
         if self.disable_lock:
@@ -321,7 +250,7 @@ class LinkedinEasyApply:
         pyautogui.keyDown("ctrl")
         pyautogui.press("esc")
         pyautogui.keyUp("ctrl")
-        time.sleep(1.0)
+        self.sleep_for_random_interval(1,2)
         pyautogui.press("esc")
 
     def get_base_search_url(self, parameters):
@@ -406,53 +335,41 @@ class LinkedinEasyApply:
             # traceback.print_exc()
             return None  # Return None if the element is not found
 
+    def extract_link_and_job_id(self, job_tile_element):
+        link = None
+        job_id = None
+        try:
+            link_element = job_tile_element.find_element(By.CLASS_NAME, "job-card-list__title")
+            link = link_element.get_attribute("href").split("?")[0]
+            job_id = str(link.rstrip("/").split("/")[-1])
+        except (ValueError, Exception) as e:
+            logger.error(f"Error extracting link and job ID: {e}")
+
+        return link, job_id
+
     def get_job_details(self):
-        """Retrieve and print job details."""
-        # Define selectors
-        # all_job_details_selector = "jobs-search__job-details--wrapper"
-        company_name_selector = "job-details-jobs-unified-top-card__company-name"
-        primary_description_selector = (
-            "job-details-jobs-unified-top-card__primary-description-container"
-        )
-        hirer_info_selector = "hirer-card__hirer-information"
-        hirer_link_selector = "div.hirer-card__hirer-information a.app-aware-link"
-        job_insight_selector = "job-details-jobs-unified-top-card__job-insight"
-        job_description_selector = "jobs-description-content__text"
-        company_description_selector = "jobs-company__company-description"
-        applicants_selector = 'div[data-view-name="premium-job-applicant-insights"]'
-
-        # Get text details using the helper function
-        # all_job_details_text = self.get_inner_text(
-        #     all_job_details_selector, By.CLASS_NAME
-        # )
-        company_name = self.get_inner_text(company_name_selector, By.CLASS_NAME)
-        primary_description_text = self.get_inner_text(
-            primary_description_selector, By.CLASS_NAME
-        )
-        hirer_name_text = self.get_inner_text(hirer_info_selector, By.CLASS_NAME)
-        linkedin_profile_link = self.get_inner_text(
-            hirer_link_selector, By.CSS_SELECTOR
-        )
-        job_insight_text = self.get_inner_text(job_insight_selector, By.CLASS_NAME)
-        job_description_text = self.get_inner_text(
-            job_description_selector, By.CLASS_NAME
-        )
-        company_description_text = self.get_inner_text(
-            company_description_selector, By.CLASS_NAME
-        )
-        applicants_text = self.get_inner_text(applicants_selector, By.CSS_SELECTOR)
-
-        # Print the collected information
-        # print(f"All Job Details: {all_job_details_text}")
-
-        job_details = {
-            "company_name": company_name,
-            "primary_description": primary_description_text,
-            "hirer_name": hirer_name_text,
-            "linkedin_profile_link": linkedin_profile_link,
-            "job_insight": job_insight_text,
-            "job_description": job_description_text,
-            "company_description": company_description_text,
-            "applicants": applicants_text,
+        """Retrieve and return job details."""
+        selectors = {
+            "company_name": ("job-details-jobs-unified-top-card__company-name", By.CLASS_NAME),
+            "primary_description": ("job-details-jobs-unified-top-card__primary-description-container", By.CLASS_NAME),
+            "hirer_name": ("hirer-card__hirer-information", By.CLASS_NAME),
+            "hirer_profile_link": ("div.hirer-card__hirer-information a.app-aware-link", By.CSS_SELECTOR),
+            "job_insight": ("job-details-jobs-unified-top-card__job-insight", By.CLASS_NAME),
+            "job_description": ("jobs-description-content__text", By.CLASS_NAME),
+            "company_description": ("jobs-company__company-description", By.CLASS_NAME),
+            "applicants": ('div[data-view-name="premium-job-applicant-insights"]', By.CSS_SELECTOR),
         }
+
+        job_details = {}
+        for key, (selector, by) in selectors.items():
+            job_details[key] = self.get_inner_text(selector, by)
+
         return job_details
+
+    def is_job_with_id_already_seen(self, job_id):
+        job_id = str(job_id).strip()
+        data = self.crawled_job_service.get_crawled_job_by_id(job_id)
+        if data != None:
+            logger.info(f"Job {job_id} already exists in the database.")
+            return True
+        return False

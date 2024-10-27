@@ -1,7 +1,6 @@
-# Variables: Possible values
-# 1. ENV: [dev, prod]
-#    - Use for setting system environment
-#    - default value: development
+# Variables
+# ENV: [dev, prod]
+# - Used for setting the system environment (default: development)
 
 services:
   postgres:
@@ -11,13 +10,10 @@ services:
       dockerfile: dockerfile
     volumes:
       - next_gen_job_hunting_data:/data/next_gen_job_hunting_postgres
-    # restart: unless-stopped
     environment:
       PGDATA: "/data/next_gen_job_hunting_postgres"
     env_file:
-      # use .env file as per Environment
-      # Possible Values: [dev, pro]
-      - ../.env
+      - ../.env # Use environment file
     ports:
       - "${DB_PORT:-5432}:5432"
 
@@ -28,16 +24,43 @@ services:
       dockerfile: dockerfile
     volumes:
       - crawler_database_data:/data/crawler_database
-    # restart: unless-stopped
     environment:
       PGDATA: "/data/crawler_database"
     env_file:
-      # use .env file as per Environment
-      # Possible Values: [dev, pro]
-      - ../.env
+      - ../.env # Use environment file
     ports:
       - "${CRAWLER_DB_PORT:-5433}:5432"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper
+
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
 
 volumes:
   next_gen_job_hunting_data:
   crawler_database_data:
+  kafka_data:
+  zookeeper_data:
