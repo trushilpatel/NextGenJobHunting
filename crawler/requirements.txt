@@ -13,3 +13,6 @@ openai
 PyYAML
 selenium 
 webdriver-manager
+six
+kafka-python
+kafka-python-ng

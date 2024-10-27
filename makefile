@@ -15,14 +15,16 @@ kill-port:
 	@pid=$$(lsof -t -i:${PORT:=8080}) && if [ -n "$$pid" ]; then kill -9 $$pid; fi
 
 ##### Docker Commands #####
-.PHONY: build-docker dev-db
+.PHONY: build-docker docker-compose-up docker-compose-down
 
 build-docker:
 	cd ./infra && docker-compose -f docker-compose.yml build
 
-dev-db:
+docker-compose-up:
 	cd ./infra && docker-compose -f docker-compose.yml up -d
 
+docker-compose-down:
+	cd ./infra && docker-compose -f docker-compose.yml down
 
 ##### Backend Commands #####
 .PHONY: build-backend run-backend dev-backend

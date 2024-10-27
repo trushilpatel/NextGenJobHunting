@@ -19,7 +19,6 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
-
 class CrawledJobService:
     def __init__(self):
         # Load environment variables

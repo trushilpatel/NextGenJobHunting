@@ -11,6 +11,7 @@ from itertools import product
 import logging
 
 from services.crawled_job_service import CrawledJobService
+from services.crawled_kakfa_service import CrawledKafkaService
 import os
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,7 @@ logging.basicConfig(
 
 class LinkedinEasyApply:
     def __init__(self, parameters, driver):
+        self.crawled_kafka_service = CrawledKafkaService()
         self.crawled_job_service = CrawledJobService()
         self.browser = driver
         self.email = parameters["email"]
@@ -205,6 +207,9 @@ class LinkedinEasyApply:
                     job_data=str(jobdetails),
                     platform_url=link,
                 )
+                self.crawled_kafka_service.send_crawled_job(
+                 {job_id: jobdetails, "job_posting_url": link, "data": jobdetails}
+                )
             except Exception as e:
                 logger.info(e)
                 logger.info(f"Could not apply to the job Link: {link}")
@@ -348,7 +353,7 @@ class LinkedinEasyApply:
             "company_name": ("job-details-jobs-unified-top-card__company-name", By.CLASS_NAME),
             "primary_description": ("job-details-jobs-unified-top-card__primary-description-container", By.CLASS_NAME),
             "hirer_name": ("hirer-card__hirer-information", By.CLASS_NAME),
-            "linkedin_profile_link": ("div.hirer-card__hirer-information a.app-aware-link", By.CSS_SELECTOR),
+            "hirer_profile_link": ("div.hirer-card__hirer-information a.app-aware-link", By.CSS_SELECTOR),
             "job_insight": ("job-details-jobs-unified-top-card__job-insight", By.CLASS_NAME),
             "job_description": ("jobs-description-content__text", By.CLASS_NAME),
             "company_description": ("jobs-company__company-description", By.CLASS_NAME),
