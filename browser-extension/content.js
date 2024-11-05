@@ -110,7 +110,7 @@ function observeJobListings(mutationsList) {
       isProcessing = false; // Reset processing flag
     });
     throttleTimeout = null; // Reset the throttle timeout
-  }, 2000); // 2 seconds delay
+  }, 500); // 2 seconds delay
 }
 
 // Initial setup function
